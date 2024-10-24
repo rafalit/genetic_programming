@@ -40,7 +40,7 @@ public class TinyGP {
     private static final int GENERATIONS = 100;
     private static final int TOURNAMENT_SIZE = 2;
     public static final double PMUT_PER_NODE = 0.03;
-    public static final double CROSSOVER_PROB = 0.7;
+    public static final double CROSSOVER_PROB = 0.9;
 
     private static double[][] targets;
 
@@ -76,6 +76,8 @@ public class TinyGP {
         } else if (args.length == 1) {
             filename = args[0];
         }
+
+        System.out.println(filename);
 
         TinyGP gp = new TinyGP(filename, seedValue);
         gp.evolve();
@@ -348,12 +350,12 @@ public class TinyGP {
         averageFitness = sumFitness / fitness.length;
 
         // Zapisz dane do pliku
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats1a.csv", true))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats6a.csv", true))) {
             writer.write(generation + "," + bestFitness + "," + averageFitness +  "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        System.out.printf("GENERATION=%d\tBEST_FITNESS=%.5f\tAVG_FITNESS=%.5f\n", generation, bestFitness, averageFitness);
+        //System.out.printf("GENERATION=%d\tBEST_FITNESS=%.5f\tAVG_FITNESS=%.5f\n", generation, bestFitness, averageFitness);
     }
 }
