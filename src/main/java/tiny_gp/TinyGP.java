@@ -44,6 +44,8 @@ public class TinyGP {
 
     private static double[][] targets;
 
+    private double[] computedValues;
+
     // Constructor
     public TinyGP(String filename, long seedValue) {
         fitness = new double[POPULATION_SIZE];
@@ -122,8 +124,8 @@ public class TinyGP {
             String line = reader.readLine();
             StringTokenizer tokens = new StringTokenizer(line);
 
-            variableCount = Integer.parseInt(tokens.nextToken().trim());
             int randomCount = Integer.parseInt(tokens.nextToken().trim());
+            variableCount = Integer.parseInt(tokens.nextToken().trim());
             minRandom = Double.parseDouble(tokens.nextToken().trim());
             maxRandom = Double.parseDouble(tokens.nextToken().trim());
             fitnessCases = Integer.parseInt(tokens.nextToken().trim());
@@ -153,8 +155,8 @@ public class TinyGP {
     // Fitness function implementation
     private double fitnessFunction(char[] prog) {
         double fit = 0.0;
+        computedValues = new double[fitnessCases]; // Store computed values per fitness case
 
-        // Use a different way to normalize the fitness
         for (int i = 0; i < fitnessCases; i++) {
             for (int j = 0; j < variableCount; j++) {
                 x[j] = targets[i][j];
@@ -162,11 +164,11 @@ public class TinyGP {
             program = prog;
             programCounter = 0;
             double result = run();
+            computedValues[i] = result;  // Store the computed result for this fitness case
             fit += Math.abs(result - targets[i][variableCount]);
         }
 
-        // Optionally consider normalizing fit
-        return -fit;  // Normalization by fitnessCases
+        return -fit;  // Normalized by fitnessCases
     }
 
     // Run interpreter
@@ -335,6 +337,8 @@ public class TinyGP {
     }
 
     // Stats method for calculating statistics of the population
+    // Stats method for calculating statistics of the population
+    // Stats method for calculating statistics of the population
     private void stats(double[] fitness, char[][] population, int generation) {
         double sumFitness = 0.0;
         int bestIndex = 0;
@@ -349,13 +353,51 @@ public class TinyGP {
         bestFitness = fitness[bestIndex];
         averageFitness = sumFitness / fitness.length;
 
-        // Zapisz dane do pliku
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats6a.csv", true))) {
-            writer.write(generation + "," + bestFitness + "," + averageFitness +  "\n");
+        // Display progress in the terminal
+        System.out.printf("Generation %d: Best Fitness = %.5f, Average Fitness = %.5f%n", generation, bestFitness, averageFitness);
+
+        // Save data to the file with targets and computed values
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats5d.csv", generation == 1))) { // Overwrites on first generation
+            // Write the header
+
+            if (variableCount == 1) {
+                writer.write("x1, Expected Value, Function Value\n");
+            } else if (variableCount == 2) {
+                writer.write("x1, x2, Expected Value, Function Value\n");
+            }
+            // Write an empty line for spacing before new generation data
+            writer.write("\n");
+
+            for (int i = 0; i < fitnessCases; i++) {
+                StringBuilder line = new StringBuilder();
+                for (int j = 0; j < variableCount; j++) {
+                    line.append(targets[i][j]).append(", ");
+                }
+                line.append(targets[i][variableCount]).append(", ")
+                        .append(computedValues[i]);
+                writer.write(line.toString() + "\n");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        //System.out.printf("GENERATION=%d\tBEST_FITNESS=%.5f\tAVG_FITNESS=%.5f\n", generation, bestFitness, averageFitness);
+        // Save generation statistics to fitness file
+        try {
+            File fitnessDir = new File("fitness");
+            if (!fitnessDir.exists()) {
+                fitnessDir.mkdirs(); // Create the fitness directory if it does not exist
+            }
+
+            // Append to the fitness file
+            try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("fitness/fitness5d.csv", generation != 1))) {
+                if (generation == 1) {
+                    fitnessWriter.write("Generation, Best Fitness, Average Fitness\n"); // Write header on the first write
+                }
+                fitnessWriter.write(String.format("%d, %.5f, %.5f%n", generation, bestFitness, averageFitness));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
 }

@@ -12,23 +12,38 @@ import tiny_gp.functions.Function6;
 
 public class DataGenerator {
     public static void main(String[] args) {
-        // Ustawienia dla każdej z funkcji
-        generateData("../data/function2a.dat", -3.14, 3.14, 101, Function2::evaluate);
-        generateData("../data/function2b.dat", 0, 7, 101, Function2::evaluate);
-        generateData("../data/function2c.dat", 0, 100, 101, Function2::evaluate);
-        generateData("../data/function2d.dat", -100, 100, 101, Function2::evaluate);
+        // Funkcje z jednym argumentem
+        generateData("../data/function1a.dat", -10, 10, 100, Function1::evaluate);
+        generateData("../data/function1b.dat", 0, 100, 100, Function1::evaluate);
+        generateData("../data/function1c.dat", -1, 1, 100, Function1::evaluate);
+        generateData("../data/function1d.dat", -1000, 1000, 100, Function1::evaluate);
+
+        generateData("../data/function2a.dat", -3.14, 3.14, 100, Function2::evaluate);
+        generateData("../data/function2b.dat", 0, 7, 100, Function2::evaluate);
+        generateData("../data/function2c.dat", 0, 100, 100, Function2::evaluate);
+        generateData("../data/function2d.dat", -100, 100, 100, Function2::evaluate);
+
+        generateData("../data/function3a.dat", 0, 4, 100, Function3::evaluate);
+        generateData("../data/function3b.dat", 0, 9, 100, Function3::evaluate);
+        generateData("../data/function3c.dat", 0, 99, 100, Function3::evaluate);
+        generateData("../data/function3d.dat", 0, 999, 100, Function3::evaluate);
 
         // Funkcje, które wymagają dwóch argumentów
-        generateData("../data/function4a.dat", 0, 1, 101, (x1, x2) -> Function4.evaluate(x1, x2));
-        generateData("../data/function4b.dat", -10, 10, 101, (x1, x2) -> Function4.evaluate(x1, x2));
-        generateData("../data/function4c.dat", 0, 100, 101, (x1, x2) -> Function4.evaluate(x1, x2));
-        generateData("../data/function4d.dat", -100, 100, 101, (x1, x2) -> Function4.evaluate(x1, x2));
+        generateData("../data/function4a.dat", 0, 1, 100, (x1, x2) -> Function4.evaluate(x1, x2));
+        generateData("../data/function4b.dat", -10, 10, 100, (x1, x2) -> Function4.evaluate(x1, x2));
+        generateData("../data/function4c.dat", 0, 100, 100, (x1, x2) -> Function4.evaluate(x1, x2));
+        generateData("../data/function4d.dat", -100, 100, 100, (x1, x2) -> Function4.evaluate(x1, x2));
 
-        // Funkcje z jednym argumentem
-        generateData("../data/function5a.dat", -3.14, 3.14, 101, Function5::evaluate);
-        generateData("../data/function5b.dat", 0, 7, 101, Function5::evaluate);
-        generateData("../data/function5c.dat", 0, 100, 101, Function5::evaluate);
-        generateData("../data/function5d.dat", -100, 100, 101, Function5::evaluate);
+
+        generateData("../data/function5a.dat", -3.14, 3.14, 100, (x1, x2) -> Function5.evaluate(x1, x2));
+        generateData("../data/function5b.dat", 0, 7, 100, (x1, x2) -> Function5.evaluate(x1, x2));
+        generateData("../data/function5c.dat", 0, 100, 100, (x1, x2) -> Function5.evaluate(x1, x2));
+        generateData("../data/function5d.dat", -100, 100, 100, (x1, x2) -> Function5.evaluate(x1, x2));
+
+        generateData("../data/function6a.dat", -10, 10, 100, (x1, x2) -> Function6.evaluate(x1, x2));
+        generateData("../data/function6b.dat", 0, 100, 100, (x1, x2) -> Function6.evaluate(x1, x2));
+        generateData("../data/function6c.dat", -1, 1, 100, (x1, x2) -> Function6.evaluate(x1, x2));
+        generateData("../data/function6d.dat", -1000, 1000, 100, (x1, x2) -> Function6.evaluate(x1, x2));
     }
 
     private static void generateData(String filename, double minX, double maxX, int fitnessCases, FunctionInterface function) {
