@@ -344,7 +344,7 @@ public class TinyGP {
     }
 
     int print_expression_to_buffer(char[] buffer, int buffercounter, StringBuffer expression) {
-        int a1 = 0, a2;
+        int a1 = 0, a2 = 0;
         if (buffer[buffercounter] < FSET_START) {
             if (buffer[buffercounter] < variableCount)
                 expression.append("X" + (buffer[buffercounter] + 1) + " ");
@@ -357,35 +357,45 @@ public class TinyGP {
                 expression.append("(");
                 a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
                 expression.append(" + ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
                 break;
             case SUB:
                 expression.append("(");
                 a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
                 expression.append(" - ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
                 break;
             case MUL:
                 expression.append("(");
                 a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
                 expression.append(" * ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
                 break;
             case DIV:
                 expression.append("(");
                 a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
                 expression.append(" / ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
                 break;
             case SIN:
                 expression.append("(");
                 a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
                 expression.append(" * SIN( ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append("))");
                 break;
             case COS:
                 expression.append("(");
                 a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
                 expression.append(" * COS( ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append("))");
                 break;
         }
-        a2 = print_expression_to_buffer(buffer, a1, expression);
-        expression.append(")");
         return (a2);
     }
 
