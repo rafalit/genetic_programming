@@ -2,6 +2,7 @@ package tiny_gp;
 
 import java.util.*;
 import java.io.*;
+
 import tiny_gp.functions.Function1;
 import tiny_gp.functions.Function2;
 import tiny_gp.functions.Function3;
@@ -19,8 +20,10 @@ public class TinyGP {
     private static final int SUB = 111;
     private static final int MUL = 112;
     private static final int DIV = 113;
+    private static final int SIN = 114;
+    private static final int COS = 115;
     private static final int FSET_START = ADD;
-    private static final int FSET_END = DIV;
+    private static final int FSET_END = COS;
 
     private static double[] x;
     private static double minRandom;
@@ -37,7 +40,7 @@ public class TinyGP {
     private static final int MAX_LENGTH = 10;
     private static final int POPULATION_SIZE = 10000;
     private static final int DEPTH = 2;
-    private static final int GENERATIONS = 100;
+    private static final int GENERATIONS = 30;
     private static final int TOURNAMENT_SIZE = 2;
     public static final double PMUT_PER_NODE = 0.03;
     public static final double CROSSOVER_PROB = 0.9;
@@ -193,6 +196,10 @@ public class TinyGP {
                 double num = run();
                 double den = run();
                 return Math.abs(den) <= 0.001 ? num : num / den;
+            case SIN:
+                return run() * Math.sin(run());
+            case COS:
+                return run() * Math.cos(run());
         }
         return 0.0; // should never get here
     }
@@ -208,6 +215,8 @@ public class TinyGP {
             case SUB:
             case MUL:
             case DIV:
+            case SIN:
+            case COS:
                 return traverse(buffer, traverse(buffer, ++bufferCount));
         }
         return 0; // should never get here
@@ -241,6 +250,7 @@ public class TinyGP {
 
     // Create random individual with grow method
     private static char[] buffer = new char[MAX_LENGTH];
+
     private int grow(char[] buffer, int pos, int max, int depth) {
         char prim = (char) random.nextInt(2);
         int oneChild;
@@ -279,6 +289,8 @@ public class TinyGP {
                         case SUB:
                         case MUL:
                         case DIV:
+                        case SIN:
+                        case COS:
                             parentCopy[mutSite] = (char) (random.nextInt(FSET_END - FSET_START + 1) + FSET_START);
                             break;
                     }
@@ -340,36 +352,50 @@ public class TinyGP {
         System.out.println("----------------------------------");
     }
 
-    int print_expression_to_buffer( char []buffer, int buffercounter, StringBuffer expression ) {
-        int a1=0, a2;
-        if ( buffer[buffercounter] < FSET_START ) {
-            if ( buffer[buffercounter] < variableCount )
-                expression.append( "X"+ (buffer[buffercounter] + 1 )+ " ");
+    int print_expression_to_buffer(char[] buffer, int buffercounter, StringBuffer expression) {
+        int a1 = 0, a2;
+        if (buffer[buffercounter] < FSET_START) {
+            if (buffer[buffercounter] < variableCount)
+                expression.append("X" + (buffer[buffercounter] + 1) + " ");
             else
-                expression.append( x[buffer[buffercounter]]);
-            return( ++buffercounter );
+                expression.append(x[buffer[buffercounter]]);
+            return (++buffercounter);
         }
-        switch(buffer[buffercounter]) {
-            case ADD: expression.append( "(");
-                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
-                expression.append( " + ");
+        switch (buffer[buffercounter]) {
+            case ADD:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" + ");
                 break;
-            case SUB: expression.append( "(");
-                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
-                expression.append( " - ");
+            case SUB:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" - ");
                 break;
-            case MUL: expression.append( "(");
-                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
-                expression.append( " * ");
+            case MUL:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" * ");
                 break;
-            case DIV: expression.append( "(");
-                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
-                expression.append( " / ");
+            case DIV:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" / ");
+                break;
+            case SIN:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" * SIN( ");
+                break;
+            case COS:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" * COS( ");
                 break;
         }
-        a2=print_expression_to_buffer( buffer, a1, expression);
-        expression.append( ")");
-        return( a2);
+        a2 = print_expression_to_buffer(buffer, a1, expression);
+        expression.append(")");
+        return (a2);
     }
 
     // Stats method for calculating statistics of the population
@@ -435,7 +461,7 @@ public class TinyGP {
             e.printStackTrace();
         }
 
-        if (generation == GENERATIONS-1) {
+        if (generation == GENERATIONS - 1) {
             try {
                 File fitnessDir = new File("expressions");
                 if (!fitnessDir.exists()) {
