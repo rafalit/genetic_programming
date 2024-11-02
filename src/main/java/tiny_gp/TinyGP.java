@@ -336,6 +336,38 @@ public class TinyGP {
         System.out.println("----------------------------------");
     }
 
+    int print_expression_to_buffer( char []buffer, int buffercounter, StringBuffer expression ) {
+        int a1=0, a2;
+        if ( buffer[buffercounter] < FSET_START ) {
+            if ( buffer[buffercounter] < variableCount )
+                expression.append( "X"+ (buffer[buffercounter] + 1 )+ " ");
+            else
+                expression.append( x[buffer[buffercounter]]);
+            return( ++buffercounter );
+        }
+        switch(buffer[buffercounter]) {
+            case ADD: expression.append( "(");
+                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
+                expression.append( " + ");
+                break;
+            case SUB: expression.append( "(");
+                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
+                expression.append( " - ");
+                break;
+            case MUL: expression.append( "(");
+                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
+                expression.append( " * ");
+                break;
+            case DIV: expression.append( "(");
+                a1=print_expression_to_buffer( buffer, ++buffercounter, expression);
+                expression.append( " / ");
+                break;
+        }
+        a2=print_expression_to_buffer( buffer, a1, expression);
+        expression.append( ")");
+        return( a2);
+    }
+
     // Stats method for calculating statistics of the population
     // Stats method for calculating statistics of the population
     // Stats method for calculating statistics of the population
@@ -397,6 +429,23 @@ public class TinyGP {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (generation == GENERATIONS-1) {
+            try {
+                File fitnessDir = new File("expressions");
+                if (!fitnessDir.exists()) {
+                    fitnessDir.mkdirs(); // Create the fitness directory if it does not exist
+                }
+                StringBuffer expression = new StringBuffer();
+                print_expression_to_buffer(population[bestIndex], 0, expression);
+
+                try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("expressions/test", true))) {
+                    fitnessWriter.write(expression.toString());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
