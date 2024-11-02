@@ -46,6 +46,10 @@ public class TinyGP {
 
     private double[] computedValues;
 
+    private static final String outputStatsFileName = "stats5d.csv";
+    private static final String outputFitnessFileName = "fitness5d.csv";
+    private static final String outputExpressionFileName = "expression5d.csv";
+
     // Constructor
     public TinyGP(String filename, long seedValue) {
         fitness = new double[POPULATION_SIZE];
@@ -389,7 +393,7 @@ public class TinyGP {
         System.out.printf("Generation %d: Best Fitness = %.5f, Average Fitness = %.5f%n", generation, bestFitness, averageFitness);
 
         // Save data to the file with targets and computed values
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats5d.csv", generation == 1))) { // Overwrites on first generation
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/" + outputStatsFileName, generation == 1))) { // Overwrites on first generation
             // Write the header
 
             if (variableCount == 1) {
@@ -421,7 +425,7 @@ public class TinyGP {
             }
 
             // Append to the fitness file
-            try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("fitness/fitness5d.csv", generation != 1))) {
+            try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("fitness/" + outputFitnessFileName, generation != 1))) {
                 if (generation == 1) {
                     fitnessWriter.write("Generation, Best Fitness, Average Fitness\n"); // Write header on the first write
                 }
@@ -440,7 +444,7 @@ public class TinyGP {
                 StringBuffer expression = new StringBuffer();
                 print_expression_to_buffer(population[bestIndex], 0, expression);
 
-                try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("expressions/test", true))) {
+                try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("expressions/" + outputExpressionFileName, true))) {
                     fitnessWriter.write(expression.toString());
                 }
             } catch (IOException e) {
