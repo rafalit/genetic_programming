@@ -35,7 +35,7 @@ public class TinyGP {
     private static double averageLength;
 
     private static final int MAX_LENGTH = 10;
-    private static final int POPULATION_SIZE = 1000;
+    private static final int POPULATION_SIZE = 10000;
     private static final int DEPTH = 2;
     private static final int GENERATIONS = 100;
     private static final int TOURNAMENT_SIZE = 2;
@@ -357,7 +357,7 @@ public class TinyGP {
         System.out.printf("Generation %d: Best Fitness = %.5f, Average Fitness = %.5f%n", generation, bestFitness, averageFitness);
 
         // Save data to the file with targets and computed values
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats5d.csv", generation == 1))) { // Overwrites on first generation
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats3d.csv", generation == 1))) { // Overwrites on first generation
             // Write the header
 
             if (variableCount == 1) {
@@ -389,7 +389,7 @@ public class TinyGP {
             }
 
             // Append to the fitness file
-            try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("fitness/fitness5d.csv", generation != 1))) {
+            try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("fitness/fitness3d.csv", generation != 1))) {
                 if (generation == 1) {
                     fitnessWriter.write("Generation, Best Fitness, Average Fitness\n"); // Write header on the first write
                 }
