@@ -35,7 +35,7 @@ public class TinyGP {
     private static double averageLength;
 
     private static final int MAX_LENGTH = 10;
-    private static final int POPULATION_SIZE = 10000;
+    private static final int POPULATION_SIZE = 1000;
     private static final int DEPTH = 2;
     private static final int GENERATIONS = 100;
     private static final int TOURNAMENT_SIZE = 2;
