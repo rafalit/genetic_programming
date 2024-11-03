@@ -39,9 +39,9 @@ public class TinyGP {
     private double averageLength;
 
     private final int MAX_LENGTH = 10;
-    private final int POPULATION_SIZE = 10000;
+    private final int POPULATION_SIZE = 1000;
     private final int DEPTH = 2;
-    private final int GENERATIONS = 100;
+    private final int GENERATIONS = 80;
     private final int TOURNAMENT_SIZE = 2;
     public final double PMUT_PER_NODE = 0.03;
     public final double CROSSOVER_PROB = 0.9;

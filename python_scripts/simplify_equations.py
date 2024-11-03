@@ -2,8 +2,8 @@ from sympy import sympify
 import os
 
 
-equations_folder = 'equations'
-simplified_equations_folder = 'simplified_equations'
+equations_folder = '../output_with_sin_cos/expressions'
+simplified_equations_folder = '../output_with_sin_cos/simplified_expressions'
 
 if not os.path.exists(simplified_equations_folder):
     os.makedirs(simplified_equations_folder)
@@ -11,8 +11,6 @@ if not os.path.exists(simplified_equations_folder):
 directory = os.fsencode(equations_folder)
 
 for equation_file in os.listdir(directory):
-    if not os.path.isfile(equation_file):
-      continue
     filename = os.fsdecode(equation_file)
     path = os.path.join(equations_folder, filename)
 
@@ -23,8 +21,12 @@ for equation_file in os.listdir(directory):
 
     expression = expression.replace('SIN', 'sin')
     expression = expression.replace('COS', 'cos')
-    print(expression)
-    expression_simplified = str(sympify(expression))
+    try:
+        expression_simplified = str(sympify(expression))
+    except:
+        print(f'Could not simplify the expression: {equation_file}')
+        continue
+
 
     simplified_equation_path = os.path.join(simplified_equations_folder, f'simplified_{filename}')
 

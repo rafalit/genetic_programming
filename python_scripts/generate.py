@@ -84,3 +84,12 @@ generate_data_file_for_function_and_domain(f6, 2, [-10, 10], 100, 'problem6a.dat
 generate_data_file_for_function_and_domain(f6, 2, [0,100], 100, 'problem6b.dat', 100, -10, 10)
 generate_data_file_for_function_and_domain(f6, 2, [-1, 1], 100, 'problem6c.dat', 100, -10, 10)
 generate_data_file_for_function_and_domain(f6, 2, [-1000, 1000], 200, 'problem6d.dat', 100, -10, 10)
+
+def f7(x):
+  return math.sin(x + 3.141592/2)
+
+def f8(x):
+  return math.sin(2*x +1)
+
+generate_data_file_for_function_and_domain(f7, 1, [-math.pi, math.pi], 100, 'problem7a.dat', 100, -10, 10)
+generate_data_file_for_function_and_domain(f8, 1, [-math.pi/2, math.pi/2], 100, 'problem8a.dat', 100, -10, 10)
