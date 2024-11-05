@@ -8,7 +8,7 @@ public class LimitedThreadExecutor extends Thread {
 
     public static void main(String[] args) {
         List<String> dataFileSuffixes = Arrays.asList(
-                "7a","8a"
+                "3d"
         );
         int MAX_CONCURRENT_THREADS = 4;
         Semaphore semaphore = new Semaphore(MAX_CONCURRENT_THREADS);

@@ -51,7 +51,7 @@ def f2(x):
 generate_data_file_for_function_and_domain(f2, 1, [-3.14, 3.14], 100, 'problem2a.dat', 50, -5, 5)
 generate_data_file_for_function_and_domain(f2, 1, [0,7], 100, 'problem2b.dat', 50, -5, 5)
 generate_data_file_for_function_and_domain(f2, 1, [0, 100], 100, 'problem2c.dat', 100, -5, 5)
-generate_data_file_for_function_and_domain(f2, 1, [-100, 100], 100, 'problem2d.dat', 100, -5, 5)
+generate_data_file_for_function_and_domain(f2, 1, [-100, 100], 300, 'problem2d.dat', 100, -5, 5)
 
 def f3(x):
   return 2 * math.log(x+1)
@@ -89,7 +89,7 @@ def f7(x):
   return math.sin(x + 3.141592/2)
 
 def f8(x):
-  return math.sin(2*x +1)
+  return math.tan(2*x +1)
 
 generate_data_file_for_function_and_domain(f7, 1, [-math.pi, math.pi], 100, 'problem7a.dat', 100, -10, 10)
 generate_data_file_for_function_and_domain(f8, 1, [-math.pi/2, math.pi/2], 100, 'problem8a.dat', 100, -10, 10)
