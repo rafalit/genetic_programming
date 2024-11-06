@@ -9,45 +9,18 @@ import tiny_gp.functions.Function3;
 import tiny_gp.functions.Function4;
 import tiny_gp.functions.Function5;
 import tiny_gp.functions.Function6;
+import java.util.Random;
 
 public class DataGenerator {
+
     public static void main(String[] args) {
-        // Funkcje z jednym argumentem
-        generateData("../data/function1a.dat", -10, 10, 100, Function1::evaluate);
-        generateData("../data/function1b.dat", 0, 100, 100, Function1::evaluate);
-        generateData("../data/function1c.dat", -1, 1, 100, Function1::evaluate);
-        generateData("../data/function1d.dat", -1000, 1000, 100, Function1::evaluate);
-
-        generateData("../data/function2a.dat", -3.14, 3.14, 100, Function2::evaluate);
-        generateData("../data/function2b.dat", 0, 7, 100, Function2::evaluate);
-        generateData("../data/function2c.dat", 0, 100, 100, Function2::evaluate);
-        generateData("../data/function2d.dat", -100, 100, 100, Function2::evaluate);
-
-        generateData("../data/function3a.dat", 0, 4, 100, Function3::evaluate);
-        generateData("../data/function3b.dat", 0, 9, 100, Function3::evaluate);
-        generateData("../data/function3c.dat", 0, 99, 100, Function3::evaluate);
-        generateData("../data/function3d.dat", 0, 999, 100, Function3::evaluate);
-
-        // Funkcje, które wymagają dwóch argumentów
-        generateData("../data/function4a.dat", 0, 1, 100, (x1, x2) -> Function4.evaluate(x1, x2));
-        generateData("../data/function4b.dat", -10, 10, 100, (x1, x2) -> Function4.evaluate(x1, x2));
-        generateData("../data/function4c.dat", 0, 100, 100, (x1, x2) -> Function4.evaluate(x1, x2));
-        generateData("../data/function4d.dat", -100, 100, 100, (x1, x2) -> Function4.evaluate(x1, x2));
-
-
-        generateData("../data/function5a.dat", -3.14, 3.14, 100, (x1, x2) -> Function5.evaluate(x1, x2));
-        generateData("../data/function5b.dat", 0, 7, 100, (x1, x2) -> Function5.evaluate(x1, x2));
-        generateData("../data/function5c.dat", 0, 100, 100, (x1, x2) -> Function5.evaluate(x1, x2));
-        generateData("../data/function5d.dat", -100, 100, 100, (x1, x2) -> Function5.evaluate(x1, x2));
-
-        generateData("../data/function6a.dat", -10, 10, 100, (x1, x2) -> Function6.evaluate(x1, x2));
-        generateData("../data/function6b.dat", 0, 100, 100, (x1, x2) -> Function6.evaluate(x1, x2));
-        generateData("../data/function6c.dat", -1, 1, 100, (x1, x2) -> Function6.evaluate(x1, x2));
-        generateData("../data/function6d.dat", -1000, 1000, 100, (x1, x2) -> Function6.evaluate(x1, x2));
+        generateData("data/function5a.dat", -3.14, 3.14, 100, (x1, x2) -> Function5.evaluate(x1, x2));
+        generateData("data/function5b.dat", 0, 7, 100, (x1, x2) -> Function5.evaluate(x1, x2));
+        generateData("data/function5c.dat", 0, 100, 100, (x1, x2) -> Function5.evaluate(x1, x2));
+        generateData("data/function5d.dat", -100, 100, 100, (x1, x2) -> Function5.evaluate(x1, x2));
     }
-
     private static void generateData(String filename, double minX, double maxX, int fitnessCases, FunctionInterface function) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/" + filename))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             writer.write("1 1 " + minX + " " + maxX + " " + fitnessCases + "\n");
 
             for (int i = 0; i <= fitnessCases; i++) {
@@ -61,19 +34,30 @@ public class DataGenerator {
     }
 
     private static void generateData(String filename, double minX, double maxX, int fitnessCases, BiFunctionInterface function) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/" + filename))) {
+        Random random = new Random();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             writer.write("1 2 " + minX + " " + maxX + " " + fitnessCases + "\n");
 
             for (int i = 0; i <= fitnessCases; i++) {
-                double x1 = minX + (maxX - minX) * i / fitnessCases; // Generate x1
-                double x2 = minX + (maxX - minX) * (i + 1) / fitnessCases; // Generate x2
-                double y = function.evaluate(x1, x2); // Compute result y
-                writer.write(x1 + "\t" + x2 + "\t" + y + "\n"); // Save x1, x2, and y
+                // Generowanie wartości x1 w równych odstępach w przedziale [minX, maxX]
+                double x1 = minX + (maxX - minX) * i / fitnessCases;
+
+                // Losowa wartość x2 w przedziale [minX, maxX]
+                double x2 = minX + (maxX - minX) * random.nextDouble();
+
+                // Oblicz wynik y na podstawie funkcji dla wylosowanych x1 i x2
+                double y = function.evaluate(x1, x2);
+
+                // Zapisz dane w odpowiednim formacie
+                writer.write(x1 + "\t" + x2 + "\t" + y + "\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
 
     // Interfejs funkcyjny do obsługi funkcji z jednym argumentem
     @FunctionalInterface

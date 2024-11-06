@@ -421,6 +421,7 @@ public class TinyGP {
 
         // Save data to the file with targets and computed values
 
+
         try {
             File fitnessDir = new File(outputStatsFolder);
             if (!fitnessDir.exists()) {
