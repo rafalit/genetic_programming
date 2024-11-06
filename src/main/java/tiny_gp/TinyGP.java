@@ -2,6 +2,7 @@ package tiny_gp;
 
 import java.util.*;
 import java.io.*;
+
 import tiny_gp.functions.Function1;
 import tiny_gp.functions.Function2;
 import tiny_gp.functions.Function3;
@@ -12,42 +13,61 @@ import tiny_gp.functions.Function6;
 public class TinyGP {
     private double[] fitness;
     private char[][] population;
-    private static final Random random = new Random();
+    private final Random random = new Random();
 
     // Constants for function set
-    private static final int ADD = 110;
-    private static final int SUB = 111;
-    private static final int MUL = 112;
-    private static final int DIV = 113;
-    private static final int FSET_START = ADD;
-    private static final int FSET_END = DIV;
+    private final int ADD = 110;
+    private final int SUB = 111;
+    private final int MUL = 112;
+    private final int DIV = 113;
+    private final int SIN = 114;
+    private final int COS = 115;
+    private final int FSET_START = ADD;
+    private final int FSET_END = COS;
 
-    private static double[] x;
-    private static double minRandom;
-    private static double maxRandom;
-    private static char[] program;
-    private static int programCounter;
-    private static int variableCount;
-    private static int fitnessCases;
-    private static double bestFitness = 0.0;
-    private static double averageFitness = 0.0;
-    private static long seed;
-    private static double averageLength;
+    private double[] x;
+    private double minRandom;
+    private double maxRandom;
+    private char[] program;
+    private int programCounter;
+    private int variableCount;
+    private int randomNumber;
+    private int fitnessCases;
+    private double bestFitness = 0.0;
+    private double averageFitness = 0.0;
+    private long seed;
+    private double averageLength;
 
-    private static final int MAX_LENGTH = 10;
-    private static final int POPULATION_SIZE = 10000;
-    private static final int DEPTH = 2;
-    private static final int GENERATIONS = 100;
-    private static final int TOURNAMENT_SIZE = 2;
-    public static final double PMUT_PER_NODE = 0.03;
-    public static final double CROSSOVER_PROB = 0.9;
+    private final int MAX_LENGTH = 10;
+    private final int POPULATION_SIZE = 2000;
+    private final int DEPTH = 2;
+    private final int GENERATIONS = 90;
+    private final int TOURNAMENT_SIZE = 2;
+    public final double PMUT_PER_NODE = 0.03;
+    public final double CROSSOVER_PROB = 0.9;
 
-    private static double[][] targets;
+    private double[][] targets;
 
     private double[] computedValues;
 
+    private static final String outputStatsFolder = "output_with_sin_cos/stats";
+    private static final String outputFitnessFolder = "output_with_sin_cos/fitness";
+    private static final String outputExpressionFolder = "output_with_sin_cos/expressions";
+    private String outputStatsFileName = "stats5d.csv";
+    private String outputFitnessFileName = "fitness5d.csv";
+    private String outputExpressionFileName = "expression5d.csv";
+
     // Constructor
-    public TinyGP(String filename, long seedValue) {
+    public TinyGP(String filename,
+                  long seedValue,
+                  String _outputStatsFileName,
+                  String _outputFitnessFileName,
+                  String _outputExpressionFileName) {
+        outputStatsFileName = _outputStatsFileName;
+        outputFitnessFileName = _outputFitnessFileName;
+        outputExpressionFileName = _outputExpressionFileName;
+
+
         fitness = new double[POPULATION_SIZE];
         seed = seedValue;
 
@@ -66,27 +86,7 @@ public class TinyGP {
             x[i] = (maxRandom - minRandom) * random.nextDouble() + minRandom;
         }
     }
-
-    // Main method
-    public static void main(String[] args) {
-        String filename = "problem.dat"; // plik problem.dat musi być w folderze głównym
-        long seedValue = -1;
-
-        if (args.length == 2) {
-            seedValue = Integer.parseInt(args[0]);
-            filename = args[1];
-        } else if (args.length == 1) {
-            filename = args[0];
-        }
-
-        System.out.println(filename);
-
-        TinyGP gp = new TinyGP(filename, seedValue);
-        gp.evolve();
-    }
-
-    // Evolution process
-    private void evolve() {
+    public void evolve() {
         int generation = 0;
         printParameters();
         stats(fitness, population, 0);
@@ -94,7 +94,6 @@ public class TinyGP {
         for (generation = 1; generation < GENERATIONS; generation++) {
             if (bestFitness > -1e-5) {
                 System.out.println("PROBLEM SOLVED");
-                System.exit(0);
             }
 
             for (int i = 0; i < POPULATION_SIZE; i++) {
@@ -115,7 +114,6 @@ public class TinyGP {
             stats(fitness, population, generation);
         }
         System.out.println("PROBLEM *NOT* SOLVED");
-        System.exit(1);
     }
 
     // Fitness setup method
@@ -124,15 +122,15 @@ public class TinyGP {
             String line = reader.readLine();
             StringTokenizer tokens = new StringTokenizer(line);
 
-            int randomCount = Integer.parseInt(tokens.nextToken().trim());
             variableCount = Integer.parseInt(tokens.nextToken().trim());
+            randomNumber = Integer.parseInt(tokens.nextToken().trim());
             minRandom = Double.parseDouble(tokens.nextToken().trim());
             maxRandom = Double.parseDouble(tokens.nextToken().trim());
             fitnessCases = Integer.parseInt(tokens.nextToken().trim());
 
             targets = new double[fitnessCases][variableCount + 1];
 
-            if (variableCount + randomCount >= FSET_START) {
+            if (variableCount + randomNumber >= FSET_START) {
                 throw new IllegalArgumentException("Too many variables and constants");
             }
 
@@ -147,7 +145,7 @@ public class TinyGP {
             System.err.println("ERROR: Please provide a data file");
             System.exit(0);
         } catch (Exception e) {
-            System.err.println("ERROR: Incorrect data format");
+            System.err.println(e);
             System.exit(0);
         }
     }
@@ -189,6 +187,10 @@ public class TinyGP {
                 double num = run();
                 double den = run();
                 return Math.abs(den) <= 0.001 ? num : num / den;
+            case SIN:
+                return run() * Math.sin(run());
+            case COS:
+                return run() * Math.cos(run());
         }
         return 0.0; // should never get here
     }
@@ -204,6 +206,8 @@ public class TinyGP {
             case SUB:
             case MUL:
             case DIV:
+            case SIN:
+            case COS:
                 return traverse(buffer, traverse(buffer, ++bufferCount));
         }
         return 0; // should never get here
@@ -236,7 +240,8 @@ public class TinyGP {
     }
 
     // Create random individual with grow method
-    private static char[] buffer = new char[MAX_LENGTH];
+    private char[] buffer = new char[MAX_LENGTH];
+
     private int grow(char[] buffer, int pos, int max, int depth) {
         char prim = (char) random.nextInt(2);
         int oneChild;
@@ -246,7 +251,7 @@ public class TinyGP {
         if (pos == 0) prim = 1;
 
         if (prim == 0 || depth == 0) {
-            prim = (char) random.nextInt(variableCount + FSET_END - FSET_START + 1);
+            prim = (char) random.nextInt(variableCount + randomNumber);
             buffer[pos] = prim;
             return pos + 1;
         } else {
@@ -275,6 +280,8 @@ public class TinyGP {
                         case SUB:
                         case MUL:
                         case DIV:
+                        case SIN:
+                        case COS:
                             parentCopy[mutSite] = (char) (random.nextInt(FSET_END - FSET_START + 1) + FSET_START);
                             break;
                     }
@@ -336,6 +343,62 @@ public class TinyGP {
         System.out.println("----------------------------------");
     }
 
+    int print_expression_to_buffer(char[] buffer, int buffercounter, StringBuffer expression) {
+        int a1 = 0, a2 = 0;
+        if (buffer[buffercounter] < FSET_START) {
+            if (buffer[buffercounter] < variableCount)
+                expression.append("X" + (buffer[buffercounter] + 1) + " ");
+            else
+                expression.append(x[buffer[buffercounter]]);
+            return (++buffercounter);
+        }
+        switch (buffer[buffercounter]) {
+            case ADD:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" + ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
+                break;
+            case SUB:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" - ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
+                break;
+            case MUL:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" * ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
+                break;
+            case DIV:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" / ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append(")");
+                break;
+            case SIN:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" * SIN( ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append("))");
+                break;
+            case COS:
+                expression.append("(");
+                a1 = print_expression_to_buffer(buffer, ++buffercounter, expression);
+                expression.append(" * COS( ");
+                a2 = print_expression_to_buffer(buffer, a1, expression);
+                expression.append("))");
+                break;
+        }
+        return (a2);
+    }
+
     // Stats method for calculating statistics of the population
     // Stats method for calculating statistics of the population
     // Stats method for calculating statistics of the population
@@ -357,7 +420,14 @@ public class TinyGP {
         System.out.printf("Generation %d: Best Fitness = %.5f, Average Fitness = %.5f%n", generation, bestFitness, averageFitness);
 
         // Save data to the file with targets and computed values
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("output/stats3d.csv", generation == 1))) { // Overwrites on first generation
+
+
+        try {
+            File fitnessDir = new File(outputStatsFolder);
+            if (!fitnessDir.exists()) {
+                fitnessDir.mkdirs(); // Create the fitness directory if it does not exist
+            }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputStatsFolder + "/" + outputStatsFileName, generation == 1))) { // Overwrites on first generation
             // Write the header
 
             if (variableCount == 1) {
@@ -377,19 +447,20 @@ public class TinyGP {
                         .append(computedValues[i]);
                 writer.write(line.toString() + "\n");
             }
+        }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Save generation statistics to fitness file
         try {
-            File fitnessDir = new File("fitness");
+            File fitnessDir = new File(outputFitnessFolder);
             if (!fitnessDir.exists()) {
                 fitnessDir.mkdirs(); // Create the fitness directory if it does not exist
             }
 
             // Append to the fitness file
-            try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter("fitness/fitness3d.csv", generation != 1))) {
+            try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter(outputFitnessFolder + "/" + outputFitnessFileName, generation != 1))) {
                 if (generation == 1) {
                     fitnessWriter.write("Generation, Best Fitness, Average Fitness\n"); // Write header on the first write
                 }
@@ -397,6 +468,23 @@ public class TinyGP {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (generation == GENERATIONS - 1) {
+            try {
+                File fitnessDir = new File(outputExpressionFolder);
+                if (!fitnessDir.exists()) {
+                    fitnessDir.mkdirs(); // Create the fitness directory if it does not exist
+                }
+                StringBuffer expression = new StringBuffer();
+                print_expression_to_buffer(population[bestIndex], 0, expression);
+
+                try (BufferedWriter fitnessWriter = new BufferedWriter(new FileWriter(outputExpressionFolder + "/" + outputExpressionFileName, true))) {
+                    fitnessWriter.write(expression.toString());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
