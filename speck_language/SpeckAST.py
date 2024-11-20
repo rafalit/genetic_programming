@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import copy
+import os
 
 
 class SpeckAST:
@@ -56,7 +57,6 @@ class SpeckAST:
             self.children.append(random.choice(allowed_children).generate(self))
 
     class OutputStatement(ParseTreeNode):
-
         def __str__(self):
             return f'out({str(self.children[0])});'
 
@@ -65,7 +65,6 @@ class SpeckAST:
             return cls([root.Expression.generate(root)])
 
     class InputStatement(ParseTreeNode):
-
         def __str__(self):
             return f'in({str(self.children[0])});'
 
@@ -158,6 +157,7 @@ class SpeckAST:
         def __init__(self, children=None, indent=0):
             super().__init__(children)
             self.indent = indent
+
         @classmethod
         def generate(cls, root):
             variable_to_be_included = random.choice(root.variables)
@@ -176,17 +176,60 @@ class SpeckAST:
 
     class ConditionStatement(StatementWithBody):
         def __str__(self):
-            return f'if({self.children[0]})' + '{\n' + str(self.children[1]) + (' ' * (self.indent+4)) +\
-                str(self.children[2]) + '\n' + (' ' * self.indent) + '}'
+            return f'if({self.children[0]})' + '{\n' + str(self.children[1]) + (' ' * (self.indent + 4)) + \
+                   str(self.children[2]) + '\n' + (' ' * self.indent) + '}'
 
     class LoopStatement(StatementWithBody):
         def __str__(self):
-            return f'while({self.children[0]})' + '{\n' + str(self.children[1]) + (' ' * (self.indent+4)) +\
-                str(self.children[2]) + '\n' + (' ' * self.indent) + '}'
+            return f'while({self.children[0]})' + '{\n' + str(self.children[1]) + (' ' * (self.indent + 4)) + \
+                   str(self.children[2]) + '\n' + (' ' * self.indent) + '}'
+
+    def crossover(self, program1, program2, num_crossovers=3):
+        """Perform multiple subtree swaps between two programs, ensuring logical correctness."""
+        for _ in range(num_crossovers):
+            # Losujemy punkty crossover w obu programach
+            idx1 = random.randint(0, len(program1.children) - 1)
+            idx2 = random.randint(0, len(program2.children) - 1)
+
+            # Wybieramy poddrzewo (część programu) z obu programów
+            subtree1 = program1.children[idx1]
+            subtree2 = program2.children[idx2]
+
+            # Jeśli poddrzewo to jest typu "if", "while" lub "assign", możemy je wymienić
+            if isinstance(subtree1,
+                          (program1.ConditionStatement, program1.LoopStatement, program1.AssigmentStatement)) and \
+                    isinstance(subtree2,
+                               (program2.ConditionStatement, program2.LoopStatement, program2.AssigmentStatement)):
+                # Zamiana poddrzew
+                program1.children[idx1] = subtree2
+                program2.children[idx2] = subtree1
+
+        return program1, program2
 
 
+def save_program_to_file(folder, filename, program):
+    # Upewnij się, że folder istnieje
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
-x = SpeckAST(1000, 10, 10, 10, -5, 6, 100)
-print(x)
+    file_path = os.path.join(folder, filename)
+    with open(file_path, 'w') as f:
+        f.write(str(program))
 
 
+# Tworzymy dwa programy
+program1 = SpeckAST(1000, 10, 10, 10, -5, 6, 100)
+program2 = SpeckAST(1000, 10, 10, 10, -5, 6, 100)
+
+# Zapisz programy przed crossoverem
+save_program_to_file("crossover", "program1_before_crossover.txt", program1)
+save_program_to_file("crossover", "program2_before_crossover.txt", program2)
+
+# Wykonaj crossover na dwóch programach
+program1, program2 = program1.crossover(program1, program2, num_crossovers=3)
+
+# Zapisz programy po crossoverze
+save_program_to_file("crossover", "program1_after_crossover.txt", program1)
+save_program_to_file("crossover", "program2_after_crossover.txt", program2)
+
+print("Programy zapisane do folderu crossover.")
