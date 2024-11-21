@@ -4,13 +4,17 @@ Output z analizy:
 (start (statement (input_statement in( x1 ) (end_of_statement ;))))
 ==================================================
 
+
 Przyk³ad z pliku: 
 if(x1 > 5) {
     x1 = x1 + 1;
 }
+
 Output z analizy: 
-(start (statement (conditional_statement if( (expression (expression x1) > (expression 5)) ) (program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))))
+(start (statement (conditional_statement if( (expression (expression x1) > (expression 5)) )
+(program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))))
 ==================================================
+
 
 Przyk³ad z pliku: 
 in(x1);
@@ -22,9 +26,16 @@ while(x1 < 15) {
     x1 = x1 + 2;
 }
 out(x1);
+
 Output z analizy: 
-(start (statement (input_statement in( x1 ) (end_of_statement ;))) (statement (assigment_statement (constant_assigment X0 = (expression 10) (end_of_statement ;)))) (statement (conditional_statement if( (expression (expression x1) > (expression X0)) ) (program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))) (statement (loop_statement while( (expression (expression x1) < (expression 15)) ) (program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 2)) (end_of_statement ;)))) }))) (statement (output_statement out( (expression x1) ) (end_of_statement ;))))
+(start (statement (input_statement in( x1 ) (end_of_statement ;))) (statement (assigment_statement (constant_assigment X0 = (expression 10) (end_of_statement ;))))
+(statement (conditional_statement if( (expression (expression x1) > (expression X0)) )
+(program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) })))
+(statement (loop_statement while( (expression (expression x1) < (expression 15)) )
+(program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 2))
+(end_of_statement ;)))) }))) (statement (output_statement out( (expression x1) ) (end_of_statement ;))))
 ==================================================
+
 
 Przyk³ad z pliku: 
 x1 = 5;
@@ -32,14 +43,18 @@ Output z analizy:
 (start (statement (assigment_statement (variable_assigment x1 = (expression 5) (end_of_statement ;)))))
 ==================================================
 
+
 Przyk³ad z pliku: 
 x1 = 5 + 10 * 3;
 if(x1 == 35) {
     out(x1);
 }
 Output z analizy: 
-(start (statement (assigment_statement (variable_assigment x1 = (expression (expression 5) + (expression (expression 10) * (expression 3))) (end_of_statement ;)))) (statement (conditional_statement if( (expression (expression x1) == (expression 35)) ) (program_block { (statement (output_statement out( (expression x1) ) (end_of_statement ;))) }))))
+(start (statement (assigment_statement (variable_assigment x1 = (expression (expression 5) + (expression (expression 10) * (expression 3))) (end_of_statement ;))))
+(statement (conditional_statement if( (expression (expression x1) == (expression 35)) )
+ (program_block { (statement (output_statement out( (expression x1) ) (end_of_statement ;))) }))))
 ==================================================
+
 
 Przyk³ad z pliku: 
 in(x1);
@@ -47,9 +62,14 @@ if(x1 > 5) {
     x1 = x1 + 1;
 }
 out(x1);
+
 Output z analizy: 
-(start (statement (input_statement in( x1 ) (end_of_statement ;))) (statement (conditional_statement if( (expression (expression x1) > (expression 5)) ) (program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))) (statement (output_statement out( (expression x1) ) (end_of_statement ;))))
+(start (statement (input_statement in( x1 ) (end_of_statement ;)))
+(statement (conditional_statement if( (expression (expression x1) > (expression 5)) )
+(program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) })))
+(statement (output_statement out( (expression x1) ) (end_of_statement ;))))
 ==================================================
+
 
 Przyk³ad z pliku: 
 in(x1);
@@ -58,9 +78,15 @@ out(x1);
 while(x1 < 10) {
     x1 = x1 + 1;
 }
+
 Output z analizy: 
-(start (statement (input_statement in( x1 ) (end_of_statement ;))) (statement (assigment_statement (variable_assigment x1 = (expression 5) (end_of_statement ;)))) (statement (output_statement out( (expression x1) ) (end_of_statement ;))) (statement (loop_statement while( (expression (expression x1) < (expression 10)) ) (program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))))
+(start (statement (input_statement in( x1 ) (end_of_statement ;)))
+(statement (assigment_statement (variable_assigment x1 = (expression 5) (end_of_statement ;))))
+(statement (output_statement out( (expression x1) ) (end_of_statement ;)))
+(statement (loop_statement while( (expression (expression x1) < (expression 10)) )
+(program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))))
 ==================================================
+
 
 Przyk³ad z pliku: 
 in(x1);
@@ -69,15 +95,23 @@ if(x1 > X0) {
     x1 = x1 + 1;
 }
 out(x1);
+
 Output z analizy: 
-(start (statement (input_statement in( x1 ) (end_of_statement ;))) (statement (assigment_statement (constant_assigment X0 = (expression 10) (end_of_statement ;)))) (statement (conditional_statement if( (expression (expression x1) > (expression X0)) ) (program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))) (statement (output_statement out( (expression x1) ) (end_of_statement ;))))
+(start (statement (input_statement in( x1 ) (end_of_statement ;)))
+(statement (assigment_statement (constant_assigment X0 = (expression 10) (end_of_statement ;))))
+(statement (conditional_statement if( (expression (expression x1) > (expression X0)) )
+(program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) })))
+(statement (output_statement out( (expression x1) ) (end_of_statement ;))))
 ==================================================
+
 
 Przyk³ad z pliku: 
 while(x1 < 10) {
     x1 = x1 + 1;
 }
+
 Output z analizy: 
-(start (statement (loop_statement while( (expression (expression x1) < (expression 10)) ) (program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))))
+(start (statement (loop_statement while( (expression (expression x1) < (expression 10)) )
+(program_block { (statement (assigment_statement (variable_assigment x1 = (expression (expression x1) + (expression 1)) (end_of_statement ;)))) }))))
 ==================================================
 
