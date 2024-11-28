@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import os
+import math
 
 
 class SpeckAST:
@@ -124,6 +125,8 @@ class SpeckAST:
                     case '*':
                         return left * right
                     case '/':
+                        if math.isnan(left / right):
+                            return left
                         return left / right
                     case '>':
                         return 1 if left > right else -1
