@@ -1,12 +1,11 @@
 import random
 import numpy as np
-import copy
 import os
 
 
 class SpeckAST:
     def __init__(self, max_program_size, initial_program_size, max_variables, max_constants,
-                 number_const_min=0, number_const_max=10, number_const_size=5,
+                 number_const_min=0, number_const_max=10, number_const_size=11,
                  number_const_list=None, variables=None, constants=None, indent=0):
         self.max_program_size = max_program_size
         self.initial_program_size = initial_program_size
@@ -19,15 +18,16 @@ class SpeckAST:
         else:
             self.number_const_list = number_const_list
 
-        self.variables = variables if variables else []
-        self.constants = constants if constants else []
         self.children = []
+        if constants is None:
+            self.children.append(self.ConstantsAssigment.generate(self))
+
+        self.variables = variables if variables is not None else np.zeros(max_variables)
+        self.constants = constants if constants is not None else np.zeros(max_constants)
         self.allowed_children = [
             self.OutputStatement,
             self.InputStatement,
-            self.AssigmentStatement
-        ]
-        self.allowed_children_when_variables_exist = [
+            self.AssigmentStatement,
             self.ConditionStatement,
             self.LoopStatement
         ]
@@ -35,10 +35,13 @@ class SpeckAST:
 
     class ParseTreeNode:
         def __init__(self, root, children=None):
-            self.root = root  # Referencja do nadrzędnego SpeckAST
+            self.root = root
             self.children = children if children else []
 
         def mutate(self):
+            pass
+
+        def run(self, root):
             pass
 
         def __str__(self):
@@ -50,12 +53,26 @@ class SpeckAST:
             result += (' ' * self.indent) + str(child) + '\n'
         return result
 
+    def run(self):
+        for child in self.children:
+            child.run(self)
+
     def generate_children(self, initial_program_size):
         for _ in range(initial_program_size):
-            allowed_children = self.allowed_children
-            if self.variables:
-                allowed_children.extend(self.allowed_children_when_variables_exist)
-            self.children.append(random.choice(allowed_children).generate(self))
+            self.children.append(random.choice(self.allowed_children).generate(self))
+
+    class ConstantsAssigment(ParseTreeNode):
+        def __str__(self):
+            return '\n'.join([str(child) for child in self.children])
+
+        def run(self, root):
+            for child in self.children:
+                child.run(root)
+
+        @classmethod
+        def generate(cls, root):
+            children = [root.AssigmentStatement.generate(root, f'X{i}') for i in range(root.max_constants)]
+            return cls(root, children)
 
     class OutputStatement(ParseTreeNode):
         def __str__(self):
@@ -71,10 +88,8 @@ class SpeckAST:
 
         @classmethod
         def generate(cls, root):
-            variable_index = random.randint(1, len(root.variables) + 1)
+            variable_index = random.randint(0, root.max_variables - 1)
             variable_name = f'x{variable_index}'
-            if variable_name not in root.variables:
-                root.variables.append(variable_name)
             return cls(root, [variable_name])
 
     class Expression(ParseTreeNode):
@@ -84,7 +99,46 @@ class SpeckAST:
             result = ''
             for child in self.children:
                 result += str(child)
+
+            if len(self.children) == 3:
+                return f'({result})'
+
             return result
+
+        def run(self, root):
+            if len(self.children) == 1:
+                if isinstance(self.children[0], str):
+                    index = int(self.children[0][1:])
+                    if self.children[0][0] == 'x':
+                        return root.variables[index]
+                    return root.constants[index]
+                return self.children[0]
+            else:
+                left = self.children[0].run(root)
+                right = self.children[2].run(root)
+                match self.children[1]:
+                    case '+':
+                        return left + right
+                    case '-':
+                        return left - right
+                    case '*':
+                        return left * right
+                    case '/':
+                        return left / right
+                    case '>':
+                        return 1 if left > right else -1
+                    case '<':
+                        return 1 if left < right else -1
+                    case '==':
+                        return 1 if left == right else -1
+                    case '!=':
+                        return 1 if left != right else -1
+                    case '<=':
+                        return 1 if left <= right else -1
+                    case '>=':
+                        return 1 if left >= right else -1
+                    case _:
+                        raise f'Error while evaluating the expression, this: {self.children[1]} should not be an operator'
 
         @classmethod
         def generate(cls, root, variable_to_be_included=None):
@@ -111,15 +165,15 @@ class SpeckAST:
 
         @classmethod
         def generate_terminal_expression(cls, root):
-            if not root.variables and not root.constants:
-                return cls(root, [random.choice(root.number_const_list)])
-
-            terminal_type = random.choice(['Number', 'Variable'])
+            terminal_type = random.choice(['Number', 'Variable', 'Constant'])
             if terminal_type == 'Number':
                 return cls(root, [random.choice(root.number_const_list)])
+            if terminal_type == 'Variable':
+                variable_index = random.randint(0, root.max_variables - 1)
+                return cls(root, [f'x{variable_index}'])
 
-            variable_or_constant = random.choice(root.variables + root.constants)
-            return cls(root, [variable_or_constant])
+            constant_index = random.randint(0, root.max_constants - 1)
+            return cls(root, [f'X{constant_index}'])
 
         def mutate(self):
             mutation_type = random.choice(["replace_operator", "change_terminal", "rebuild_expression"])
@@ -130,10 +184,10 @@ class SpeckAST:
             elif mutation_type == "change_terminal":
                 for i in range(len(self.children)):
                     if isinstance(self.children[i], str) and self.children[i] not in self.TERMINALS:
-                        if self.children[i] in self.root.variables:
-                            self.children[i] = random.choice(self.root.variables)
-                        elif self.children[i] in self.root.constants:
-                            self.children[i] = random.choice(self.root.constants)
+                        if self.children[i][0] == 'x':
+                            self.children[i] = f'x{random.randint(0, self.root.max_variables - 1)}'
+                        elif self.children[i][0] == 'X':
+                            self.children[i] = f'X{random.randint(0, self.root.max_constants - 1)}'
             elif mutation_type == "rebuild_expression":
                 new_expression = self.generate_terminal_expression(self.root)
                 self.children = new_expression.children
@@ -142,32 +196,27 @@ class SpeckAST:
         def __str__(self):
             return f'{str(self.children[0])} = {str(self.children[1])};'
 
+        def run(self, root):
+            index = int(self.children[0][1:])
+            value = self.children[1].run(root)
+            if self.children[0][0] == 'x':
+                root.variables[index] = value
+            root.constants[index] = value
+
         @classmethod
         def generate(cls, root, variable_to_be_included=None):
             expression = root.Expression.generate(root)
             if variable_to_be_included:
                 return cls(root, [variable_to_be_included, expression])
 
-            variable_or_constant = None
-            assigment_type = random.choice(['Variable', 'Constant'])
-            if assigment_type == 'Variable' or len(root.constants) == root.max_constants:
-                variable_index = random.randint(1, len(root.variables) + 1)
-                variable_or_constant = f'x{variable_index}'
-                if variable_or_constant not in root.variables:
-                    root.variables.append(variable_or_constant)
-            else:
-                constant_index = len(root.constants)
-                variable_or_constant = f'X{constant_index}'
-                root.constants.append(variable_or_constant)
+            variable_index = random.randint(0, root.max_variables - 1)
+            variable = f'x{variable_index}'
 
-            if not variable_or_constant:
-                raise Exception('Something went wrong, the variable/constant was not generated')
-
-            return cls(root, [variable_or_constant, expression])
+            return cls(root, [variable, expression])
 
         def mutate(self):
             if random.random() < 0.5:
-                self.children[0] = random.choice(self.root.variables + self.root.constants)
+                self.children[0] = f'x{random.randint(0, self.root.max_variables - 1)}'
             if random.random() < 0.5:
                 self.children[1] = SpeckAST.Expression.generate(self.root)
 
@@ -175,21 +224,6 @@ class SpeckAST:
         def __init__(self, root, children=None, indent=0):
             super().__init__(root, children)
             self.indent = indent
-
-        @classmethod
-        def generate(cls, root):
-            variable_to_be_included = random.choice(root.variables)
-            condition = root.Expression.generate(root, variable_to_be_included)
-            body = SpeckAST(max_program_size=root.max_program_size // 10,
-                            initial_program_size=1,
-                            max_variables=root.max_variables,
-                            max_constants=root.max_constants,
-                            number_const_list=root.number_const_list,
-                            variables=copy.deepcopy(root.variables),
-                            constants=copy.deepcopy(root.constants),
-                            indent=root.indent + 4)
-            assigment_to_be_included = root.AssigmentStatement.generate(root, variable_to_be_included)
-            return cls(root, [condition, body, assigment_to_be_included], indent=root.indent)
 
         def mutate(self):
             if random.random() < 0.5:
@@ -199,22 +233,56 @@ class SpeckAST:
 
     class ConditionStatement(StatementWithBody):
         def __str__(self):
-            return f'if({self.children[0]})' + '{\n' + str(self.children[1]) + (' ' * (self.indent + 4)) + \
-                   str(self.children[2]) + '\n' + (' ' * self.indent) + '}'
+            return f'if({self.children[0]})' + '{\n' + str(self.children[1]) + (' ' * self.indent) + '}'
+
+        def run(self, root):
+            condition = self.children[0].run(root)
+            if condition > 0:
+                self.children[1].run()
+
+        @classmethod
+        def generate(cls, root):
+            condition = root.Expression.generate(root)
+            body = SpeckAST(max_program_size=root.max_program_size // 10,
+                            initial_program_size=1,
+                            max_variables=root.max_variables,
+                            max_constants=root.max_constants,
+                            number_const_list=root.number_const_list,
+                            variables=root.variables,
+                            constants=root.constants,
+                            indent=root.indent + 4)
+            return cls(root, [condition, body], indent=root.indent)
 
     class LoopStatement(StatementWithBody):
         def __str__(self):
             return f'while({self.children[0]})' + '{\n' + str(self.children[1]) + (' ' * (self.indent + 4)) + \
-                   str(self.children[2]) + '\n' + (' ' * self.indent) + '}'
+                str(self.children[2]) + '\n' + (' ' * self.indent) + '}'
+
+        def run(self, root):
+            condition = self.children[0].run(root)
+            while condition > 0:
+                self.children[1].run()
+                self.children[2].run(root)
+
+        @classmethod
+        def generate(cls, root):
+            variable_to_be_included = f'x{random.randint(0, root.max_variables - 1)}'
+            condition = root.Expression.generate(root, variable_to_be_included)
+            body = SpeckAST(max_program_size=root.max_program_size // 10,
+                            initial_program_size=1,
+                            max_variables=root.max_variables,
+                            max_constants=root.max_constants,
+                            number_const_list=root.number_const_list,
+                            variables=root.variables,
+                            constants=root.constants,
+                            indent=root.indent + 4)
+            assigment_to_be_included = root.AssigmentStatement.generate(root, variable_to_be_included)
+            return cls(root, [condition, body, assigment_to_be_included], indent=root.indent)
 
     def mutate_program(self):
-        #print("\nProgram przed mutacją:\n")
-        #print(self)
         for child in self.children:
             if isinstance(child, SpeckAST.ParseTreeNode):
                 child.mutate()
-        #print("\nProgram po mutacji:\n")
-        #print(self)
 
     def crossover(self, program1, program2, num_crossovers=3):
         """Perform multiple subtree swaps between two programs, ensuring logical correctness."""
