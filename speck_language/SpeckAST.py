@@ -107,7 +107,7 @@ class SpeckAST:
             return cls(root, [variable_name])
 
     class Expression(ParseTreeNode):
-        TERMINALS = ['+', '-', '/', '*', '>', '<', '==', '!=', '<=', '>=']
+        TERMINALS = ['+', '-', '/', '*', '>', '<', '==', '!=', '<=', '>=', 'and', 'or']
 
         def __str__(self):
             result = ''
@@ -127,6 +127,9 @@ class SpeckAST:
                         return root.variables[index]
                     return root.constants[index]
                 return self.children[0]
+            elif len(self.children) == 2 and self.children[0] == '!':
+                expression_result = self.children[1].run(root)
+                return -1 if expression_result > 0 else 1
             else:
                 left = self.children[0].run(root)
                 right = self.children[2].run(root)
@@ -153,6 +156,10 @@ class SpeckAST:
                         return 1 if left <= right else -1
                     case '>=':
                         return 1 if left >= right else -1
+                    case 'and':
+                        return 1 if left > 0 and right > 0 else -1
+                    case 'or':
+                        return 1 if left > 0 or right > 0 else -1
                     case _:
                         raise f'Error while evaluating the expression, this: {self.children[1]} should not be an operator'
 
@@ -169,7 +176,6 @@ class SpeckAST:
                         random.choice(cls.TERMINALS),
                         cls.generate_terminal_expression(root)
                     ])
-
             if expression_type == 0:
                 return cls.generate_terminal_expression(root)
             elif expression_type == 1:
