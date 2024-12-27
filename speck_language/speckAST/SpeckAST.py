@@ -7,18 +7,16 @@ from .output_statement import OutputStatement
 from .input_statement import InputStatement
 from .assigment_statement import AssigmentStatement
 from .condition_statement import ConditionStatement
-from .constants_assigment import ConstantsAssigment
 from .loop_statement import LoopStatement
 
 
 class SpeckAST:
-    def __init__(self, max_program_size, initial_program_size, max_variables, max_constants,
+    def __init__(self, max_program_size, initial_program_size, max_variables,
                  number_const_min=0, number_const_max=10, number_const_size=11,
-                 number_const_list=None, variables=None, constants=None, indent=0):
+                 number_const_list=None, variables=None, indent=0):
         self.max_program_size = max_program_size
         self.initial_program_size = initial_program_size
         self.max_variables = max_variables
-        self.max_constants = max_constants
         self.indent = indent
 
         if number_const_list is None:
@@ -27,11 +25,8 @@ class SpeckAST:
             self.number_const_list = number_const_list
 
         self.children = []
-        if constants is None:
-            self.children.append(ConstantsAssigment.generate(self))
 
         self.variables = variables if variables is not None else np.zeros(max_variables)
-        self.constants = constants if constants is not None else np.zeros(max_constants)
         self.allowed_children = [
             OutputStatement,
             InputStatement,

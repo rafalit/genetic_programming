@@ -22,10 +22,8 @@ class LoopStatement(StatementWithBody):
         body = root.__class__(max_program_size=root.max_program_size // 10,
                         initial_program_size=1,
                         max_variables=root.max_variables,
-                        max_constants=root.max_constants,
                         number_const_list=root.number_const_list,
                         variables=root.variables,
-                        constants=root.constants,
                         indent=root.indent + 4)
         assigment_to_be_included = AssigmentStatement.generate(root, variable_to_be_included)
         return cls(root, [condition, body, assigment_to_be_included], indent=root.indent)

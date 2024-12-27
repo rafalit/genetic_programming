@@ -17,9 +17,7 @@ class ConditionStatement(StatementWithBody):
         body = root.__class__(max_program_size=root.max_program_size // 10,
                         initial_program_size=1,
                         max_variables=root.max_variables,
-                        max_constants=root.max_constants,
                         number_const_list=root.number_const_list,
                         variables=root.variables,
-                        constants=root.constants,
                         indent=root.indent + 4)
         return cls(root, [condition, body], indent=root.indent)
