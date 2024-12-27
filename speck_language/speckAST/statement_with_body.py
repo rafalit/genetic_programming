@@ -7,6 +7,12 @@ class StatementWithBody(ParseTreeNode):
         super().__init__(root, children)
         self.indent = indent
 
+    @classmethod
+    def generate(cls, root):
+        condition = Expression.generate(root)
+        body = [random.choice(root.allowed_children).generate(root) for _ in range(root.statement_with_body_initial_length)]
+        return cls(root, [condition, *body], indent=root.indent + 4)
+
     def mutate(self):
         if random.random() < 0.5:
             variable = random.choice(self.root.variables)

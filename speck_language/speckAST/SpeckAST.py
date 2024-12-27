@@ -1,7 +1,5 @@
 import random
 import numpy as np
-import os
-import math
 from .parse_tree_node import ParseTreeNode
 from .output_statement import OutputStatement
 from .input_statement import InputStatement
@@ -13,11 +11,12 @@ from .loop_statement import LoopStatement
 class SpeckAST:
     def __init__(self, max_program_size, initial_program_size, max_variables,
                  number_const_min=0, number_const_max=10, number_const_size=11,
-                 number_const_list=None, variables=None, indent=0):
+                 number_const_list=None, variables=None, indent=0, statement_with_body_initial_length=2):
         self.max_program_size = max_program_size
         self.initial_program_size = initial_program_size
         self.max_variables = max_variables
         self.indent = indent
+        self.statement_with_body_initial_length = statement_with_body_initial_length
 
         if number_const_list is None:
             self.number_const_list = np.linspace(number_const_min, number_const_max, number_const_size)
