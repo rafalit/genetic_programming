@@ -8,7 +8,9 @@ class Expression(ParseTreeNode):
     def __str__(self):
         result = ''
         for child in self.children:
-            result += str(child)
+            result += str(child) + ' '
+
+        result = result.strip()
 
         if len(self.children) == 3:
             return f'({result})'

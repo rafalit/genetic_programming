@@ -15,7 +15,7 @@ class AssigmentStatement(ParseTreeNode):
 
     @classmethod
     def generate(cls, root, variable_to_be_included=None):
-        expression = root.Expression.generate(root)
+        expression = Expression.generate(root)
         if variable_to_be_included:
             return cls(root, [variable_to_be_included, expression])
 

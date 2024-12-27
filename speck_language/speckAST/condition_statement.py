@@ -1,5 +1,4 @@
 from .statement_with_body import StatementWithBody
-from .SpeckAST import SpeckAST
 from .expression import Expression
 
 
@@ -15,7 +14,7 @@ class ConditionStatement(StatementWithBody):
     @classmethod
     def generate(cls, root):
         condition = Expression.generate(root)
-        body = SpeckAST(max_program_size=root.max_program_size // 10,
+        body = root.__class__(max_program_size=root.max_program_size // 10,
                         initial_program_size=1,
                         max_variables=root.max_variables,
                         max_constants=root.max_constants,

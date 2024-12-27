@@ -1,6 +1,5 @@
 from .statement_with_body import StatementWithBody
 import random
-from .SpeckAST import SpeckAST
 from .expression import Expression
 from .assigment_statement import AssigmentStatement
 
@@ -20,7 +19,7 @@ class LoopStatement(StatementWithBody):
     def generate(cls, root):
         variable_to_be_included = f'x{random.randint(0, root.max_variables - 1)}'
         condition = Expression.generate(root, variable_to_be_included)
-        body = SpeckAST(max_program_size=root.max_program_size // 10,
+        body = root.__class__(max_program_size=root.max_program_size // 10,
                         initial_program_size=1,
                         max_variables=root.max_variables,
                         max_constants=root.max_constants,
