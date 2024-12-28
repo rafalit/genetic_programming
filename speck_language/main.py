@@ -11,11 +11,11 @@ os.makedirs('mutation', exist_ok=True)
 os.makedirs('crossover', exist_ok=True)
 
 # Tworzenie dwóch programów
-program1 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3)
-program2 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3)
-program3 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3)
-program4 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3)
-program5 = SpeckAST(max_program_size=15, initial_program_size=7, max_variables=5)
+program1 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3, max_depth=10)
+program2 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3, max_depth=10)
+program3 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3, max_depth=10)
+program4 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3, max_depth=10)
+program5 = SpeckAST(max_program_size=15, initial_program_size=7, max_variables=5, max_depth=10)
 
 # Wyświetlanie początkowych programów
 print("Początkowy Program 1:")

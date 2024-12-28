@@ -4,7 +4,7 @@ import random
 
 class InputStatement(ParseTreeNode):
     def __str__(self):
-        return f'in({str(self.children[0])});'
+        return f'{" " * (self.depth * 4)}in({str(self.children[0])});'
 
     def run(self, root):
         variable_name = self.children[0]
@@ -16,7 +16,7 @@ class InputStatement(ParseTreeNode):
             raise ValueError(f"Invalid variable name: {variable_name}")
 
     @classmethod
-    def generate(cls, root):
+    def generate(cls, root, depth):
         variable_index = random.randint(0, root.max_variables - 1)
         variable_name = f'x{variable_index}'
-        return cls(root, [variable_name])
+        return cls(root, depth, [variable_name])

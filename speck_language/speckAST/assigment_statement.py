@@ -2,9 +2,10 @@ from .parse_tree_node import ParseTreeNode
 from .expression import Expression
 import random
 
+
 class AssigmentStatement(ParseTreeNode):
     def __str__(self):
-        return f'{str(self.children[0])} = {str(self.children[1])};'
+        return f'{" " * (self.depth * 4)}{str(self.children[0])} = {str(self.children[1])};'
 
     def run(self, root):
         index = int(self.children[0][1:])
@@ -14,15 +15,15 @@ class AssigmentStatement(ParseTreeNode):
         root.constants[index] = value
 
     @classmethod
-    def generate(cls, root, variable_to_be_included=None):
-        expression = Expression.generate(root)
+    def generate(cls, root, depth, variable_to_be_included=None):
+        expression = Expression.generate(root, depth + 1)
         if variable_to_be_included:
-            return cls(root, [variable_to_be_included, expression])
+            return cls(root, depth, [variable_to_be_included, expression])
 
         variable_index = random.randint(0, root.max_variables - 1)
         variable = f'x{variable_index}'
 
-        return cls(root, [variable, expression])
+        return cls(root, depth, [variable, expression])
 
     def mutate(self):
         if random.random() < 0.5:

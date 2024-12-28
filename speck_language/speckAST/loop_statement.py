@@ -6,8 +6,8 @@ from .assigment_statement import AssigmentStatement
 
 class LoopStatement(StatementWithBody):
     def __str__(self):
-        body = '\n'.join([' ' * (self.indent + 4) + str(child) for child in self.children[1:]])
-        return f'while({self.children[0]})' + '{\n' + body + '\n' + (' ' * self.indent) + '}'
+        body = '\n'.join([str(child) for child in self.children[1:]])
+        return f'{ " " * (self.depth * 4)}while({self.children[0]})' + '{\n' + body + '\n' + (" " * (self.depth * 4)) + '}'
 
 
     def run(self, root):

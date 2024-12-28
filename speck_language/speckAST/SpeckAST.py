@@ -9,13 +9,14 @@ from .loop_statement import LoopStatement
 
 
 class SpeckAST:
-    def __init__(self, max_program_size, initial_program_size, max_variables,
+    def __init__(self, max_program_size, initial_program_size, max_variables, max_depth,
                  number_const_min=0, number_const_max=10, number_const_size=11,
-                 number_const_list=None, variables=None, indent=0, statement_with_body_initial_length=2):
+                 number_const_list=None, variables=None, statement_with_body_initial_length=2):
         self.max_program_size = max_program_size
         self.initial_program_size = initial_program_size
         self.max_variables = max_variables
-        self.indent = indent
+        self.max_depth = max_depth
+        self.depth = 0
         self.statement_with_body_initial_length = statement_with_body_initial_length
 
         if number_const_list is None:
@@ -38,7 +39,7 @@ class SpeckAST:
     def __str__(self):
         result = ''
         for child in self.children:
-            result += (' ' * self.indent) + str(child) + '\n'
+            result += str(child) + '\n'
         return result
 
     def run(self):
@@ -47,7 +48,7 @@ class SpeckAST:
 
     def generate_children(self, initial_program_size):
         for _ in range(initial_program_size):
-            self.children.append(random.choice(self.allowed_children).generate(self))
+            self.children.append(random.choice(self.allowed_children).generate(self, self.depth))
 
     def mutate_program(self):
         for child in self.children:

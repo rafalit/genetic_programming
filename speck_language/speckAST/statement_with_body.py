@@ -3,15 +3,21 @@ from .expression import Expression
 import random
 
 class StatementWithBody(ParseTreeNode):
-    def __init__(self, root, children=None, indent=0):
-        super().__init__(root, children)
-        self.indent = indent
+    min_depth = 2
 
     @classmethod
-    def generate(cls, root):
-        condition = Expression.generate(root)
-        body = [random.choice(root.allowed_children).generate(root) for _ in range(root.statement_with_body_initial_length)]
-        return cls(root, [condition, *body], indent=root.indent + 4)
+    def generate(cls, root, depth):
+        condition = Expression.generate(root, depth + 1)
+        body = [random.choice(cls.allowed_children_for_current_depth(root, depth)).generate(root, depth + 1)
+                for _ in range(root.statement_with_body_initial_length)]
+        return cls(root, depth, [condition, *body])
+
+    @classmethod
+    def allowed_children_for_current_depth(cls, root, depth):
+        if root.max_depth - depth - 1 <= 1:
+            return list(filter(lambda node_class: node_class.min_depth == 1, root.allowed_children))
+
+        return root.allowed_children
 
     def mutate(self):
         if random.random() < 0.5:

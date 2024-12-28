@@ -2,6 +2,7 @@ from .parse_tree_node import ParseTreeNode
 import random
 import math
 
+
 class Expression(ParseTreeNode):
     TERMINALS = ['+', '-', '/', '*', '>', '<', '==', '!=', '<=', '>=', 'and', 'or']
 
@@ -61,37 +62,30 @@ class Expression(ParseTreeNode):
                     raise f'Error while evaluating the expression, this: {self.children[1]} should not be an operator'
 
     @classmethod
-    def generate(cls, root, variable_to_be_included=None):
-        expression_type = random.randint(0, 1)
-
-        if variable_to_be_included:
-            if expression_type == 0:
-                return cls(root, [variable_to_be_included])
-            elif expression_type == 1:
-                return cls(root, [
-                    cls(root, [variable_to_be_included]),
-                    random.choice(cls.TERMINALS),
-                    cls.generate_terminal_expression(root)
-                ])
+    def generate(cls, root, depth):
+        expression_type = random.randint(0, 2)
         if expression_type == 0:
-            return cls.generate_terminal_expression(root)
+            return cls.generate_terminal_expression(root, depth)
         elif expression_type == 1:
-            return cls(root, [
-                cls.generate_terminal_expression(root),
+            return cls(root, depth, [
+                cls.generate_terminal_expression(root, depth + 1),
                 random.choice(cls.TERMINALS),
-                cls.generate_terminal_expression(root)
+                cls.generate_terminal_expression(root, depth + 1)
+            ])
+        elif expression_type == 2:
+            return cls(root, depth, [
+                '!',
+                cls.generate_terminal_expression(root, depth + 1)
             ])
 
     @classmethod
-    def generate_terminal_expression(cls, root):
+    def generate_terminal_expression(cls, root, depth):
         terminal_type = random.choice(['Number', 'Variable'])
         if terminal_type == 'Number':
-            return cls(root, [random.choice(root.number_const_list)])
+            return cls(root, depth, [random.choice(root.number_const_list)])
         if terminal_type == 'Variable':
             variable_index = random.randint(0, root.max_variables - 1)
-            return cls(root, [f'x{variable_index}'])
-
-
+            return cls(root, depth, [f'x{variable_index}'])
 
     def mutate(self):
         mutation_type = random.choice(["replace_operator", "change_terminal", "rebuild_expression"])
