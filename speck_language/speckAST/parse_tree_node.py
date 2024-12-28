@@ -22,3 +22,10 @@ class ParseTreeNode:
 
     def __str__(self):
         return ''
+
+    def node_list(self):
+        result = [(self,)]
+        for i, child in enumerate(self.children):
+            if isinstance(child, ParseTreeNode):
+                result.extend([(i, *statement) for statement in child.node_list()])
+        return result

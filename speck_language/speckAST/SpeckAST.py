@@ -6,6 +6,8 @@ from .input_statement import InputStatement
 from .assigment_statement import AssigmentStatement
 from .condition_statement import ConditionStatement
 from .loop_statement import LoopStatement
+from .expression import Expression
+from copy import deepcopy
 
 
 class SpeckAST:
@@ -77,3 +79,48 @@ class SpeckAST:
     def generate_children(self, initial_program_size):
         for _ in range(initial_program_size):
             self.children.append(random.choice(self.allowed_children).generate(self, self.depth))
+
+    @classmethod
+    def crossover(cls, program1, program2):
+        program1 = deepcopy(program1)
+        node_to_be_replaced = random.choice(program1.program_nodes())
+        depth_of_replaced_node = node_to_be_replaced[-1].depth
+
+        nodes_for_replacing = program2.program_nodes()
+        if isinstance(node_to_be_replaced[-1], Expression):
+            nodes_for_replacing = list(filter(lambda node: isinstance(node[-1], Expression), nodes_for_replacing))
+        else:
+            nodes_for_replacing = list(filter(lambda node: not isinstance(node[-1], Expression), nodes_for_replacing))
+
+        current_node = program1
+        for index in node_to_be_replaced[:-2]:
+            current_node = current_node.children[index]
+
+        current_node.children[node_to_be_replaced[-2]] = deepcopy(random.choice(nodes_for_replacing)[-1])
+        current_node.children[node_to_be_replaced[-2]].depth = depth_of_replaced_node
+        return program1
+
+    def mutation(self):
+        mutated_program = deepcopy(self)
+        node_to_be_replaced = random.choice(mutated_program.program_nodes())
+        depth_of_replaced_node = node_to_be_replaced[-1].depth
+
+        new_node = None
+        if isinstance(node_to_be_replaced[-1], Expression):
+            new_node = Expression.generate(self, depth_of_replaced_node)
+        else:
+            new_node = random.choice(self.allowed_children).generate(self, depth_of_replaced_node)
+
+        current_node = mutated_program
+        for index in node_to_be_replaced[:-2]:
+            current_node = current_node.children[index]
+
+        current_node.children[node_to_be_replaced[-2]] = new_node
+        return mutated_program
+
+
+    def program_nodes(self):
+        result = []
+        for i, child in enumerate(self.children):
+            result.extend([(i, *statement) for statement in child.node_list()])
+        return result
