@@ -2,8 +2,14 @@ from .parse_tree_node import ParseTreeNode
 from .expression import Expression
 import random
 
+
 class StatementWithBody(ParseTreeNode):
     min_depth = 2
+
+    def __str__(self, statement_keyword):
+        body = '\n'.join([str(child) for child in self.children[1:]])
+        return f'{" " * (self.depth * 4)}{statement_keyword}({self.children[0]})' + '{\n' + body + '\n' + (
+                    " " * (self.depth * 4)) + '}'
 
     @classmethod
     def generate(cls, root, depth):
@@ -18,9 +24,3 @@ class StatementWithBody(ParseTreeNode):
             return list(filter(lambda node_class: node_class.min_depth == 1, root.allowed_children))
 
         return root.allowed_children
-
-    def mutate(self):
-        if random.random() < 0.5:
-            variable = random.choice(self.root.variables)
-            self.children[0] = Expression.generate(self.root, variable)
-        self.children[1].mutate_program()

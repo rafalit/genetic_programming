@@ -86,20 +86,3 @@ class Expression(ParseTreeNode):
         if terminal_type == 'Variable':
             variable_index = random.randint(0, root.max_variables - 1)
             return cls(root, depth, [f'x{variable_index}'])
-
-    def mutate(self):
-        mutation_type = random.choice(["replace_operator", "change_terminal", "rebuild_expression"])
-        if mutation_type == "replace_operator":
-            for i in range(len(self.children)):
-                if self.children[i] in self.TERMINALS:
-                    self.children[i] = random.choice(self.TERMINALS)
-        elif mutation_type == "change_terminal":
-            for i in range(len(self.children)):
-                if isinstance(self.children[i], str) and self.children[i] not in self.TERMINALS:
-                    if self.children[i][0] == 'x':
-                        self.children[i] = f'x{random.randint(0, self.root.max_variables - 1)}'
-                    elif self.children[i][0] == 'X':
-                        self.children[i] = f'X{random.randint(0, self.root.max_constants - 1)}'
-        elif mutation_type == "rebuild_expression":
-            new_expression = self.generate_terminal_expression(self.root)
-            self.children = new_expression.children

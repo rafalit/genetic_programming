@@ -1,5 +1,6 @@
 class ParseTreeNode:
     min_depth = 1
+
     def __init__(self, root, depth, children=None):
         self.root = root
         self.depth = depth

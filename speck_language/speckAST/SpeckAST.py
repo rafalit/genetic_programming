@@ -1,6 +1,5 @@
 import random
 import numpy as np
-from .parse_tree_node import ParseTreeNode
 from .output_statement import OutputStatement
 from .input_statement import InputStatement
 from .assigment_statement import AssigmentStatement
@@ -49,44 +48,3 @@ class SpeckAST:
     def generate_children(self, initial_program_size):
         for _ in range(initial_program_size):
             self.children.append(random.choice(self.allowed_children).generate(self, self.depth))
-
-    def mutate_program(self):
-        for child in self.children:
-            if isinstance(child, ParseTreeNode):
-                child.mutate()
-
-    def crossover(self, program1, program2, num_crossovers=3):
-        """Perform multiple subtree swaps between two programs, ensuring logical correctness."""
-        for _ in range(num_crossovers):
-            # Losujemy punkty crossover w obu programach
-            idx1 = random.randint(0, len(program1.children) - 1)
-            idx2 = random.randint(0, len(program2.children) - 1)
-
-            # Wybieramy poddrzewo (część programu) z obu programów
-            subtree1 = program1.children[idx1]
-            subtree2 = program2.children[idx2]
-
-            # Jeśli poddrzewo to jest typu "if", "while" lub "assign", możemy je wymienić
-            if isinstance(subtree1,
-                          (ConditionStatement, LoopStatement, AssigmentStatement)) and \
-                    isinstance(subtree2,
-                               (ConditionStatement, LoopStatement, AssigmentStatement)):
-                # Zamiana poddrzew
-                program1.children[idx1] = subtree2
-                program2.children[idx2] = subtree1
-
-        return program1, program2
-
-    def random_subtree(self, program):
-        nodes = [(program, -1, None)]
-        while nodes:
-            node, idx, parent = nodes.pop(random.randint(0, len(nodes) - 1))
-            if isinstance(node, ParseTreeNode) and random.random() < 0.2:
-                return node, (parent, idx)
-            elif isinstance(node, ParseTreeNode):
-                nodes.extend([(child, idx, node) for idx, child in enumerate(node.children)])
-        return None, None
-
-
-
-

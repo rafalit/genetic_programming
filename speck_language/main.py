@@ -1,7 +1,4 @@
-import random
-import numpy as np
 import os
-import math
 from speckAST.SpeckAST import SpeckAST
 
 
@@ -33,7 +30,6 @@ print(program4)
 print("\nPoczątkowy Program 5:")
 print(program5)
 
-# Zapisanie początkowych programów do folderu programs
 with open('programs/program1.txt', 'w') as f1, open('programs/program2.txt', 'w') as f2, open(
         'programs/program3.txt', 'w') as f3, open('crossover/program4.txt', 'w') as f4, open(
         'crossover/program5.txt', 'w') as f5:
@@ -42,38 +38,3 @@ with open('programs/program1.txt', 'w') as f1, open('programs/program2.txt', 'w'
     f3.write(str(program3))
     f4.write(str(program4))
     f5.write(str(program5))
-#
-# # Mutacja programów
-# print("\nMutowanie Programów...")
-#
-# print("\nMutowanie Programu 1...")
-# program1.mutate_program()
-#
-# print("Mutowanie Programu 2...")
-# program2.mutate_program()
-#
-# print("Mutowanie Programu 3...\n")
-# program3.mutate_program()
-#
-#
-#
-# # Zapisanie programów po mutacji do folderu mutation
-# with open('mutation/program1_mutation.txt', 'w') as f1, open('mutation/program2_mutation.txt', 'w') as f2, open(
-#         'mutation/program3_mutation.txt', 'w') as f3:
-#     f1.write(str(program1))
-#     f2.write(str(program2))
-#     f3.write(str(program3))
-#
-# print("Crossowanie Programów...\n")
-# print("Crossowanie Programu 4 z Programem 5...\n")
-#
-# # Wykonanie crossover pomiędzy programem 4 a programem 5
-# program4, program5 = program4.crossover(program4, program5, num_crossovers=4)
-#
-# # Wyświetlenie programów po crossoverze
-#
-#
-# # Zapisanie programów po crossoverze do folderu 'mutation'
-# with open('crossover/program4_crossover.txt', 'w') as f4, open('crossover/program5_crossover.txt', 'w') as f5:
-#     f4.write(str(program4))
-#     f5.write(str(program5))

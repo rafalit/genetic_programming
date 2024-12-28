@@ -24,9 +24,3 @@ class AssigmentStatement(ParseTreeNode):
         variable = f'x{variable_index}'
 
         return cls(root, depth, [variable, expression])
-
-    def mutate(self):
-        if random.random() < 0.5:
-            self.children[0] = f'x{random.randint(0, self.root.max_variables - 1)}'
-        if random.random() < 0.5:
-            self.children[1] = Expression.generate(self.root)
