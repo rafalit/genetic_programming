@@ -9,9 +9,9 @@ statement:
     | input_statement
     | output_statement ;
 
-loop_statement: 'while(' expression ')' program_block;
+loop_statement: 'while' '(' expression ')' program_block;
 
-conditional_statement: 'if(' expression ')' program_block;
+conditional_statement: 'if' '(' expression ')' program_block;
 
 expression:
     VariableName
@@ -20,7 +20,9 @@ expression:
     | expression ('==' | '!=' | '>' | '<' | '>=' | '<=' ) expression
     | '(' expression ')'
     | expression ('*' | '/' | '%') expression
-    | expression ('+' | '-') expression ;
+    | expression ('+' | '-') expression
+    | '!' expression
+    | expression ('and' | 'or') expression;
 
 assigment_statement:
     variable_assigment
