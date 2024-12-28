@@ -6,7 +6,9 @@ class LoopStatement(StatementWithBody):
         return super().__str__('while')
 
     def run(self, root):
+        if self.time_limit_exceeded():
+            return
         condition = self.children[0].run(root)
-        while condition > 0:
-            self.children[1].run()
-            self.children[2].run(root)
+        while condition > 0 and not self.time_limit_exceeded():
+            for child in self.children[1:]:
+                child.run(root)

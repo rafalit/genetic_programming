@@ -6,6 +6,9 @@ class ConditionStatement(StatementWithBody):
         return super().__str__('if')
 
     def run(self, root):
+        if self.time_limit_exceeded():
+            return
         condition = self.children[0].run(root)
         if condition > 0:
-            self.children[1].run()
+            for child in self.children[1:]:
+                child.run(root)

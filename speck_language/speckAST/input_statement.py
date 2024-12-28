@@ -7,11 +7,12 @@ class InputStatement(ParseTreeNode):
         return f'{" " * (self.depth * 4)}in({str(self.children[0])});'
 
     def run(self, root):
+        if self.time_limit_exceeded():
+            return
         variable_name = self.children[0]
         variable_index = int(variable_name[1:])
-        if variable_name[0] == 'x':  # Zmienna
-            value = float(input(f"Enter value for variable {variable_name}: "))
-            root.variables[variable_index] = value
+        if variable_name[0] == 'x':
+            root.variables[variable_index] = root.get_value_from_input()
         else:
             raise ValueError(f"Invalid variable name: {variable_name}")
 

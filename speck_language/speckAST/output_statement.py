@@ -7,8 +7,10 @@ class OutputStatement(ParseTreeNode):
         return f'{" " * (self.depth * 4)}out({str(self.children[0])});'
 
     def run(self, root):
+        if self.time_limit_exceeded():
+            return
         value = self.children[0].run(root)
-        print(f"Output: {value}")
+        root.save_value_to_output(value)
 
     @classmethod
     def generate(cls, root, depth):

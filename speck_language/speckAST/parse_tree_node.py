@@ -1,3 +1,6 @@
+import time
+
+
 class ParseTreeNode:
     min_depth = 1
 
@@ -11,6 +14,11 @@ class ParseTreeNode:
 
     def run(self, root):
         pass
+
+    def time_limit_exceeded(self):
+        if time.time() - self.root.program_start > self.root.time_limit:
+            return True
+        return False
 
     def __str__(self):
         return ''

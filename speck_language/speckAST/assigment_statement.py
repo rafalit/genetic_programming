@@ -8,11 +8,12 @@ class AssigmentStatement(ParseTreeNode):
         return f'{" " * (self.depth * 4)}{str(self.children[0])} = {str(self.children[1])};'
 
     def run(self, root):
+        if self.time_limit_exceeded():
+            return
         index = int(self.children[0][1:])
         value = self.children[1].run(root)
         if self.children[0][0] == 'x':
             root.variables[index] = value
-        root.constants[index] = value
 
     @classmethod
     def generate(cls, root, depth, variable_to_be_included=None):
