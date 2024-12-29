@@ -39,6 +39,8 @@ class Expression(ParseTreeNode):
                 case '*':
                     return left * right
                 case '/':
+                    if right == 0:
+                        return float('inf')
                     if math.isnan(left / right):
                         return left
                     return left / right

@@ -50,6 +50,20 @@ class SpeckAST:
             result += str(child) + '\n'
         return result
 
+    def depth(self):
+        return self._calculate_depth(self)
+
+    def _calculate_depth(self, node):
+        # Check if the node has children before trying to access them
+        if not hasattr(node, 'children'):
+            return 0  # If it's a leaf node (not a SpeckAST object), return 0 depth
+
+        if node is None:
+            return 0
+        left_depth = self._calculate_depth(node.children[0] if len(node.children) > 0 else None)
+        right_depth = self._calculate_depth(node.children[1] if len(node.children) > 1 else None)
+        return 1 + max(left_depth, right_depth)
+
     def run(self, input_list, output_size, time_limit):
         self.input_list = np.array(input_list)
         self.current_input_index = 0
@@ -78,13 +92,20 @@ class SpeckAST:
 
     def generate_children(self, initial_program_size):
         for _ in range(initial_program_size):
-            self.children.append(random.choice(self.allowed_children).generate(self, self.depth))
+            if self.depth < self.max_depth:
+                child = random.choice(self.allowed_children).generate(self, self.depth)
+                self.children.append(child)
+            else:
+                break
 
     @classmethod
     def crossover(cls, program1, program2):
         program1 = deepcopy(program1)
         node_to_be_replaced = random.choice(program1.program_nodes())
-        depth_of_replaced_node = node_to_be_replaced[-1].depth
+        if hasattr(node_to_be_replaced[-1], 'depth'):
+            depth_of_replaced_node = node_to_be_replaced[-1].depth
+        else:
+            depth_of_replaced_node = 0
 
         nodes_for_replacing = program2.program_nodes()
         if isinstance(node_to_be_replaced[-1], Expression):
@@ -97,7 +118,11 @@ class SpeckAST:
             current_node = current_node.children[index]
 
         current_node.children[node_to_be_replaced[-2]] = deepcopy(random.choice(nodes_for_replacing)[-1])
-        current_node.children[node_to_be_replaced[-2]].depth = depth_of_replaced_node
+
+        if hasattr(current_node.children[node_to_be_replaced[-2]], 'depth') and current_node.children[
+            node_to_be_replaced[-2]].depth > program1.max_depth:
+            current_node.children[node_to_be_replaced[-2]].depth = program1.max_depth
+
         return program1
 
     def mutation(self):
@@ -118,9 +143,9 @@ class SpeckAST:
         current_node.children[node_to_be_replaced[-2]] = new_node
         return mutated_program
 
-
     def program_nodes(self):
         result = []
         for i, child in enumerate(self.children):
             result.extend([(i, *statement) for statement in child.node_list()])
         return result
+
