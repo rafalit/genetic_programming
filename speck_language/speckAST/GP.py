@@ -1,6 +1,7 @@
 import random
 from .SpeckAST import SpeckAST
 
+
 class GP:
     def __init__(self, population_size, max_program_size, initial_program_size, max_variables, max_depth,
                  tournament_size, crossover_rate, mutation_rate, fitness_function, log_file="programs_log.txt"):
@@ -27,12 +28,13 @@ class GP:
             log.write(f"Generation {generation} - {event_type}:\n")
             log.write(str(program) + "\n\n")
 
-    def evaluate_population(self, input_list, output_list, time_limit):
+    def evaluate_population(self, input_list, expected_output, time_limit):
         print("Evaluating population...")
         self.fitness_scores = [
-            self.fitness_function(individual.run(input_list, len(output_list), time_limit), output_list)
+            self.fitness_function(individual.run(input_list, len(expected_output), time_limit), expected_output)
             for individual in self.population
         ]
+
         print(f"Fitness scores: {self.fitness_scores}")
 
     def tournament_selection(self):
@@ -44,8 +46,8 @@ class GP:
             selected.append(self.population[winner[0]])
         return selected
 
-    def evolve(self, input_list, output_list, time_limit, generation):
-        self.evaluate_population(input_list, output_list, time_limit)
+    def evolve(self, input_list, expected_output, time_limit, generation):
+        self.evaluate_population(input_list, expected_output, time_limit)
 
         selected_population = self.tournament_selection()
 
@@ -79,10 +81,13 @@ class GP:
 
         self.population = new_population
 
-    def run(self, generations, input_list, output_list, time_limit):
+    def run(self, generations, input_list, expected_output, time_limit):
         for generation in range(generations):
             print(f"\nGeneration {generation}")
-            self.evolve(input_list, output_list, time_limit, generation)
+            self.evolve(input_list, expected_output, time_limit, generation)
             best_fitness = max(self.fitness_scores)
             print(f"Best fitness in this generation: {best_fitness:.1f}")
+
+
+
 

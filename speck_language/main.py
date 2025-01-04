@@ -1,40 +1,52 @@
-import os
-from speckAST.SpeckAST import SpeckAST
+from tasks.task_1_1_A import task_1_1_A
+from tasks.task_1_1_B import task_1_1_B
+from tasks.task_1_1_C import task_1_1_C
+from tasks.task_1_1_D import task_1_1_D
+from tasks.task_1_1_E import task_1_1_E
+from tasks.task_1_1_F import task_1_1_F
+from tasks.task_1_2_A import task_1_2_A
+from tasks.task_1_2_B import task_1_2_B
+from tasks.task_1_2_C import task_1_2_C
+from tasks.task_1_2_D import task_1_2_D
+from tasks.task_1_2_E import task_1_2_E
+from tasks.task_1_3_A import task_1_3_A
+from tasks.task_1_3_B import task_1_3_B
+from tasks.task_1_4_A import task_1_4_A
+from tasks.task_1_4_B import task_1_4_B
+
+def run_single_task(task_name):
+    print(f"Running {task_name}...")
+    if task_name == "task_1_1_A":
+        task_1_1_A()
+    elif task_name == "task_1_1_B":
+        task_1_1_B()
+    elif task_name == "task_1_1_C":
+        task_1_1_C()
+    elif task_name == "task_1_1_D":
+        task_1_1_D()
+    elif task_name == "task_1_1_E":
+        task_1_1_E()
+    elif task_name == "task_1_1_F":
+        task_1_1_F()
+    elif task_name == "task_1_2_A":
+        task_1_2_A()
+    elif task_name == "task_1_2_B":
+        task_1_2_B()
+    elif task_name == "task_1_2_C":
+        task_1_2_C()
+    elif task_name == "task_1_2_D":
+        task_1_2_D()
+    elif task_name == "task_1_2_E":
+        task_1_2_E()
+    elif task_name == "task_1_3_A":
+        task_1_3_A()
+    elif task_name == "task_1_3_B":
+        task_1_3_B()
+    elif task_name == "task_1_4_A":
+        task_1_4_A()
+    else:
+        task_1_4_B()
 
 
-# Tworzenie folderów do zapisu wyników
-os.makedirs('programs', exist_ok=True)
-os.makedirs('mutation', exist_ok=True)
-os.makedirs('crossover', exist_ok=True)
-
-# Tworzenie dwóch programów
-program1 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3, max_depth=10)
-program2 = SpeckAST(max_program_size=10, initial_program_size=5, max_variables=3, max_depth=10)
-
-# Wyświetlanie początkowych programów
-print("Początkowy Program 1:")
-print(program1)
-
-print("\nPoczątkowy Program 2:")
-print(program2)
-
-program3 = SpeckAST.crossover(program1, program2)
-print("Program 3 (crossing programów 1 i 2):")
-print(program3)
-
-program4 = program1.mutation()
-print("Program 4 (mutacja programu 1):")
-print(program4)
-
-program5 = program2.mutation()
-print("Program 5 (mutacja programu 2):")
-print(program5)
-
-with open('programs/program1.txt', 'w') as f1, open('programs/program2.txt', 'w') as f2, open(
-        'crossover/program3.txt', 'w') as f3, open('mutation/program4.txt', 'w') as f4, open(
-        'mutation/program5.txt', 'w') as f5:
-    f1.write(str(program1))
-    f2.write(str(program2))
-    f3.write(str(program3))
-    f4.write(str(program4))
-    f5.write(str(program5))
+if __name__ == "__main__":
+    run_single_task("task_1_1_E")
