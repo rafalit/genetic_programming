@@ -17,16 +17,29 @@ def main(task_name):
         "task_1_3_B": ([-1234, 5678], [5678]),
         "task_1_4_A": ([10, 20, -10, 30, -30, 40, -40, 50, -50, 60], [4]),
         "task_1_4_B": ([4, 10, 20, 30, 40], [25]),
+
+        #Jeden wybrany problem z BenchmarkSuiteGECCO2015 z zakresu 1-5 (strona 9) - zadanie 1
+        "task_number_io": (
+            [5, 3.2, -2, 7.1, 100, -100.5],
+            [x + y for x, y in [(5, 3.2), (-2, 7.1), (100, -100.5)]],
+            {
+                "population_size": 50,
+                "max_variables": 2,
+                "mutation_rate": 0.4,
+                "crossover_rate": 0.8,
+            },
+        ),
+
     }
 
     if task_name not in tasks:
         print(f"Unknown task: {task_name}")
         return
 
-    input_list, expected_output = tasks[task_name]
-    print(f"Running {task_name}...")
-    run_task(input_list, expected_output)
-
+    # Rozpakowanie wartości: input_list, expected_output, config
+    input_list, expected_output, config = tasks[task_name]
+    print(f"Running {task_name} with config {config}...")
+    run_task(input_list, expected_output, **config)
 
 if __name__ == "__main__":
-    main("task_1_1_E")  # Zmień nazwę zadania, aby uruchomić inne
+    main("task_number_io")
