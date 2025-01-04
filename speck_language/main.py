@@ -1,52 +1,32 @@
-from tasks.task_1_1_A import task_1_1_A
-from tasks.task_1_1_B import task_1_1_B
-from tasks.task_1_1_C import task_1_1_C
-from tasks.task_1_1_D import task_1_1_D
-from tasks.task_1_1_E import task_1_1_E
-from tasks.task_1_1_F import task_1_1_F
-from tasks.task_1_2_A import task_1_2_A
-from tasks.task_1_2_B import task_1_2_B
-from tasks.task_1_2_C import task_1_2_C
-from tasks.task_1_2_D import task_1_2_D
-from tasks.task_1_2_E import task_1_2_E
-from tasks.task_1_3_A import task_1_3_A
-from tasks.task_1_3_B import task_1_3_B
-from tasks.task_1_4_A import task_1_4_A
-from tasks.task_1_4_B import task_1_4_B
+from tasks.run_task import run_task
 
-def run_single_task(task_name):
+def main(task_name):
+    tasks = {
+        "task_1_1_A": ([1, 2, 3, 4], [1, 2, 3, 4]),
+        "task_1_1_B": ([1, 2, 3, 4], [789]),
+        "task_1_1_C": ([1], [31415]),
+        "task_1_1_D": ([1, 2, 3, 4], [1]),
+        "task_1_1_E": ([1, 2, 3, 4], [789, 42, 56, 99]),
+        "task_1_1_F": ([1], [1]),
+        "task_1_2_A": ([3, 5], [8]),
+        "task_1_2_B": ([-4, 6], [2]),
+        "task_1_2_C": ([1234, -5678], [-4444]),
+        "task_1_2_D": ([5678, 1234], [4444]),
+        "task_1_2_E": ([12, -7], [-84]),
+        "task_1_3_A": ([3, 9], [9]),
+        "task_1_3_B": ([-1234, 5678], [5678]),
+        "task_1_4_A": ([10, 20, -10, 30, -30, 40, -40, 50, -50, 60], [4]),
+        "task_1_4_B": ([4, 10, 20, 30, 40], [25]),
+    }
+
+    if task_name not in tasks:
+        print(f"Unknown task: {task_name}")
+        return
+
+    input_list, expected_output = tasks[task_name]
     print(f"Running {task_name}...")
-    if task_name == "task_1_1_A":
-        task_1_1_A()
-    elif task_name == "task_1_1_B":
-        task_1_1_B()
-    elif task_name == "task_1_1_C":
-        task_1_1_C()
-    elif task_name == "task_1_1_D":
-        task_1_1_D()
-    elif task_name == "task_1_1_E":
-        task_1_1_E()
-    elif task_name == "task_1_1_F":
-        task_1_1_F()
-    elif task_name == "task_1_2_A":
-        task_1_2_A()
-    elif task_name == "task_1_2_B":
-        task_1_2_B()
-    elif task_name == "task_1_2_C":
-        task_1_2_C()
-    elif task_name == "task_1_2_D":
-        task_1_2_D()
-    elif task_name == "task_1_2_E":
-        task_1_2_E()
-    elif task_name == "task_1_3_A":
-        task_1_3_A()
-    elif task_name == "task_1_3_B":
-        task_1_3_B()
-    elif task_name == "task_1_4_A":
-        task_1_4_A()
-    else:
-        task_1_4_B()
+    run_task(input_list, expected_output)
 
 
 if __name__ == "__main__":
-    run_single_task("task_1_1_E")
+    main("task_1_1_E")  # Zmień nazwę zadania, aby uruchomić inne
