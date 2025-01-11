@@ -4,19 +4,21 @@ import json
 
 def run_task(task_name, **config):
     default_config = {
-        "population_size": 1000,
+        "population_size": 200,
         "max_program_size": 20,
-        "initial_program_size": 2,
-        "max_variables": 2,
-        "max_depth": 6,
+        "initial_program_size": 10,
+        "max_variables": 3,
+        "max_depth": 20,
         "tournament_size": 4,
         "crossover_rate": 0.7,
-        "mutation_rate": 0.3,
+        "stagnation_crossover_rate": 0.3,
+        'stagnation_threshold': 10,
         "fitness_function": fitness_function,
         "number_const_min": 0,
         "number_const_max": 10,
         "number_const_size": 11,
         "task_name": task_name,
+        "survival_rate": 0.3
     }
     default_config.update(config)
 
