@@ -1,10 +1,10 @@
 from speckAST.GP import GP
 from .fitness_functions import fitness_function
+import json
 
-def run_task(input_list, expected_output, **config):
-    # Domyślne ustawienia
+def run_task(task_name, **config):
     default_config = {
-        "population_size": 50,
+        "population_size": 1000,
         "max_program_size": 20,
         "initial_program_size": 2,
         "max_variables": 2,
@@ -16,13 +16,25 @@ def run_task(input_list, expected_output, **config):
         "number_const_min": 0,
         "number_const_max": 10,
         "number_const_size": 11,
-        "task_name": "...",
+        "task_name": task_name,
     }
-    # Nadpisz domyślne ustawienia
     default_config.update(config)
 
-    # Tworzymy instancję GP z nową konfiguracją
     gp = GP(**default_config)
+    inputs, outputs = extract_inputs(task_name)
 
-    # Uruchom algorytm genetyczny
-    gp.run(50, input_list, expected_output, time_limit=0.1)
+    gp.run(100, inputs, outputs, time_limit=0.01)
+
+
+def extract_inputs(task_name):
+    data = None
+    with open(f'./dane/{task_name}.json') as f:
+        data = json.load(f)
+
+    inputs, outputs = [], []
+
+    for d in data:
+        inputs.append(d['input'])
+        outputs.append(d['output'])
+
+    return inputs, outputs

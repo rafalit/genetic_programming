@@ -44,27 +44,32 @@ class GP:
         self.original_crossover_rate = crossover_rate
         self.original_mutation_rate = mutation_rate
 
-    def evaluate_population(self, input_list, expected_output, time_limit):
+    def evaluate_population(self, inputs, outputs, time_limit):
+
         for program in self.population:
-            output = program.run(input_list, len(expected_output), time_limit)
-            program.fitness = self.fitness_function(output, expected_output)
+            if program.fitness != float('-inf'):
+                continue
+
+            score = 0
+            for input_list, expected_output in zip(inputs, outputs):
+                output = program.run(input_list, len(expected_output), time_limit)
+                score += self.fitness_function(input_list, output, expected_output)
+            program.fitness = score
 
     def tournament_selection(self):
-        tournament_contestants = random.sample(self.population, self.tournament_size)
-        tournament_contestants.sort(key=lambda p: p.fitness, reverse=True)
-        half_population = self.tournament_size // 2
-        return tournament_contestants[:half_population]
+        self.population.sort(key=lambda p: p.fitness, reverse=True)
+        half_population = len(self.population) // 5
+        self.population = self.population[:half_population]
 
-    def evolve(self, input_list, expected_output, time_limit):
-        self.evaluate_population(input_list, expected_output, time_limit)
-
+    def evolve(self, inputs, outputs, time_limit):
+        self.evaluate_population(inputs, outputs, time_limit)
+        self.tournament_selection()
         new_population = []
 
-        while len(new_population) < self.population_size:
-            selected_parents = self.tournament_selection()
+        while len(self.population) + len(new_population) < self.population_size:
 
-            parent1 = selected_parents[0]
-            parent2 = selected_parents[1]
+            parent1 = random.choice(self.population)
+            parent2 = random.choice(self.population)
 
             if random.random() < self.crossover_rate:
                 child = SpeckAST.crossover(parent1, parent2)
@@ -73,9 +78,9 @@ class GP:
 
             new_population.append(child)
 
-        self.population = new_population
+        self.population.extend(new_population)
 
-    def run(self, generations, input_list, expected_output, time_limit):
+    def run(self, generations, inputs, outputs, time_limit):
         # Otwieramy plik do zapisu wyników
         with open(self.result_file, 'w') as result_file:
             # Zapiszemy nagłówek do pliku
@@ -87,7 +92,7 @@ class GP:
 
             for generation in range(generations):
                 # Przeprowadzamy ewolucję w każdej generacji
-                self.evolve(input_list, expected_output, time_limit)
+                self.evolve(inputs, outputs, time_limit)
 
                 # Zbieramy wyniki fitness dla wszystkich programów w populacji
                 valid_fitness_scores = [p.fitness for p in self.population if p.fitness != float('-inf')]
