@@ -1,6 +1,6 @@
-def fitness_function(output, expected_output):
+def fitness_function(input, output, expected_output):
     if len(output) != len(expected_output):
-        return -float('inf')
+        return -1000
 
     fitness = -sum((o - e) ** 2 for o, e in zip(output, expected_output))
 
@@ -16,7 +16,6 @@ def fitness_function(output, expected_output):
 
     for o, e in zip(output, expected_output):
         if abs(o - e) > penalty_threshold:
-            normalized_fitness -= 0.5  # Większa kara za większą różnicę
-
+            normalized_fitness -= 0.5
 
     return normalized_fitness
