@@ -7,7 +7,7 @@ import math
 class GP:
     def __init__(self, population_size, max_program_size, initial_program_size, max_variables, max_depth,
                  tournament_size, crossover_rate, stagnation_crossover_rate, fitness_function, stagnation_threshold,
-                 survivial_rate, number_const_min=0, number_const_max=10, number_const_size=11, task_name=None, **kwargs):
+                 survival_rate, number_const_min=0, number_const_max=10, number_const_size=11, task_name=None, **kwargs):
         self.population_size = population_size
         self.max_program_size = max_program_size
         self.initial_program_size = initial_program_size
@@ -21,7 +21,7 @@ class GP:
         self.number_const_max = number_const_max
         self.number_const_size = number_const_size
         self.task_name = task_name
-        self.survival_rate = survivial_rate
+        self.survival_rate = survival_rate
 
         if not os.path.exists('result'):
             os.makedirs('result')
@@ -89,6 +89,8 @@ class GP:
 
             for generation in range(generations):
                 self.evaluate_population(inputs, outputs, time_limit)
+                if generation == 0:
+                    self.population.sort(key=lambda p: p.fitness, reverse=True)
 
                 fitness_score_sum = 0
                 for o in self.population:
