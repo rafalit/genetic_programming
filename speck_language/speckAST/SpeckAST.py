@@ -27,6 +27,7 @@ class SpeckAST:
         self.depth = 0
         self.statement_with_body_initial_length = statement_with_body_initial_length
 
+        # Ustawienia generowanych liczb
         if number_const_list is None:
             self.number_const_list = np.linspace(number_const_min, number_const_max, number_const_size)
         else:
@@ -43,6 +44,7 @@ class SpeckAST:
             LoopStatement
         ]
         self.generate_children(initial_program_size)
+
 
     def __str__(self):
         result = ''
@@ -149,3 +151,8 @@ class SpeckAST:
             result.extend([(i, *statement) for statement in child.node_list()])
         return result
 
+    def get_program(self):
+        program_str = ''
+        for child in self.children:
+            program_str += str(child) + '\n'
+        return program_str
