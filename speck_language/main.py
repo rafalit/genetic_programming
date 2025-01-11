@@ -100,4 +100,4 @@ def main(task_name):
     run_task(input_list, expected_output, **config)
 
 if __name__ == "__main__":
-    main("task_1_2_A")
+    main("task_1_1_A")

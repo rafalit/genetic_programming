@@ -1,3 +1,4 @@
+
 from .parse_tree_node import ParseTreeNode
 import random
 import math
@@ -41,8 +42,6 @@ class Expression(ParseTreeNode):
                 case '/':
                     if right == 0:
                         return float('inf')
-                    if math.isnan(left / right):
-                        return left
                     return left / right
                 case '>':
                     return 1 if left > right else -1

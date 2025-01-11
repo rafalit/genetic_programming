@@ -24,8 +24,9 @@ class SpeckAST:
         self.initial_program_size = initial_program_size
         self.max_variables = max_variables
         self.max_depth = max_depth
-        self.depth = 0
+        self.depth = 0  # Głębokość, która jest teraz przechowywana bezpośrednio w atrybucie 'depth'
         self.statement_with_body_initial_length = statement_with_body_initial_length
+        self.fitness = float('-inf')
 
         # Ustawienia generowanych liczb
         if number_const_list is None:
@@ -45,26 +46,11 @@ class SpeckAST:
         ]
         self.generate_children(initial_program_size)
 
-
     def __str__(self):
         result = ''
         for child in self.children:
             result += str(child) + '\n'
         return result
-
-    def depth(self):
-        return self._calculate_depth(self)
-
-    def _calculate_depth(self, node):
-        # Check if the node has children before trying to access them
-        if not hasattr(node, 'children'):
-            return 0  # If it's a leaf node (not a SpeckAST object), return 0 depth
-
-        if node is None:
-            return 0
-        left_depth = self._calculate_depth(node.children[0] if len(node.children) > 0 else None)
-        right_depth = self._calculate_depth(node.children[1] if len(node.children) > 1 else None)
-        return 1 + max(left_depth, right_depth)
 
     def run(self, input_list, output_size, time_limit):
         self.input_list = np.array(input_list)
@@ -104,16 +90,16 @@ class SpeckAST:
     def crossover(cls, program1, program2):
         program1 = deepcopy(program1)
         node_to_be_replaced = random.choice(program1.program_nodes())
-        if hasattr(node_to_be_replaced[-1], 'depth'):
-            depth_of_replaced_node = node_to_be_replaced[-1].depth
-        else:
-            depth_of_replaced_node = 0
+        depth_of_replaced_node = node_to_be_replaced[-1].depth  # Uzyskujemy głębokość z istniejącego węzła
 
         nodes_for_replacing = program2.program_nodes()
         if isinstance(node_to_be_replaced[-1], Expression):
             nodes_for_replacing = list(filter(lambda node: isinstance(node[-1], Expression), nodes_for_replacing))
         else:
             nodes_for_replacing = list(filter(lambda node: not isinstance(node[-1], Expression), nodes_for_replacing))
+
+        if not nodes_for_replacing:
+            return program1.mutation()
 
         current_node = program1
         for index in node_to_be_replaced[:-2]:
@@ -130,7 +116,7 @@ class SpeckAST:
     def mutation(self):
         mutated_program = deepcopy(self)
         node_to_be_replaced = random.choice(mutated_program.program_nodes())
-        depth_of_replaced_node = node_to_be_replaced[-1].depth
+        depth_of_replaced_node = node_to_be_replaced[-1].depth  # Uzyskujemy głębokość z istniejącego węzła
 
         new_node = None
         if isinstance(node_to_be_replaced[-1], Expression):

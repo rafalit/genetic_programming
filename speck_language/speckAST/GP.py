@@ -21,14 +21,11 @@ class GP:
         self.number_const_size = number_const_size
         self.task_name = task_name
 
-        # Create 'result' folder if it doesn't exist
         if not os.path.exists('result'):
             os.makedirs('result')
 
-        # Set result file name based on task_name
         self.result_file = f'result/{self.task_name}.txt'
 
-        # Initialize population
         self.population = [
             SpeckAST(
                 max_program_size=max_program_size,
@@ -41,95 +38,105 @@ class GP:
             ) for _ in range(population_size)
         ]
 
+        # For tracking stagnation
+        self.stagnation_count = 0
+        self.stagnation_threshold = 5  # Threshold for considering stagnation
+        self.original_crossover_rate = crossover_rate
+        self.original_mutation_rate = mutation_rate
+
     def evaluate_population(self, input_list, expected_output, time_limit):
-        self.fitness_scores = [
-            self.fitness_function(individual.run(input_list, len(expected_output), time_limit), expected_output)
-            for individual in self.population
-        ]
+        for program in self.population:
+            output = program.run(input_list, len(expected_output), time_limit)
+            program.fitness = self.fitness_function(output, expected_output)
 
     def tournament_selection(self):
-        selected = []
-        for _ in range(self.tournament_size):
-            competitors = random.sample(list(enumerate(self.fitness_scores)), self.tournament_size)
-            winner = max(competitors, key=lambda x: x[1])  # Select the individual with the best fitness
-            selected.append(self.population[winner[0]])
-        return selected
+        tournament_contestants = random.sample(self.population, self.tournament_size)
+        tournament_contestants.sort(key=lambda p: p.fitness, reverse=True)
+        half_population = self.tournament_size // 2
+        return tournament_contestants[:half_population]
 
-    def evolve(self, input_list, expected_output, time_limit, generation):
+    def evolve(self, input_list, expected_output, time_limit):
         self.evaluate_population(input_list, expected_output, time_limit)
 
-        selected_population = self.tournament_selection()
+        new_population = []
 
-        new_population = selected_population[:]
         while len(new_population) < self.population_size:
-            if random.random() < self.crossover_rate:
-                parent1, parent2 = random.sample(selected_population, 2)
-                child = SpeckAST.crossover(parent1, parent2)
-            elif random.random() < self.mutation_rate:
-                parent = random.choice(selected_population)
-                child = parent.mutation()
-            else:
-                child = random.choice(selected_population)
+            selected_parents = self.tournament_selection()
 
-            while child.depth > self.max_depth:
-                if random.random() < self.crossover_rate:
-                    parent1, parent2 = random.sample(selected_population, 2)
-                    child = SpeckAST.crossover(parent1, parent2)
-                else:
-                    parent = random.choice(selected_population)
-                    child = parent.mutation()
+            parent1 = selected_parents[0]
+            parent2 = selected_parents[1]
+
+            if random.random() < self.crossover_rate:
+                child = SpeckAST.crossover(parent1, parent2)
+            else:
+                child = parent1.mutation()
 
             new_population.append(child)
 
         self.population = new_population
 
     def run(self, generations, input_list, expected_output, time_limit):
+        # Otwieramy plik do zapisu wyników
         with open(self.result_file, 'w') as result_file:
-            # Write header
+            # Zapiszemy nagłówek do pliku
             result_file.write("Generation, Best Fitness, Average Fitness\n")
 
-            # Initialize a variable to track the overall best program
+            # Zmienna do śledzenia najlepszego programu w całej ewolucji
             overall_best_fitness = float('-inf')
             overall_best_program = None
 
             for generation in range(generations):
-                self.evolve(input_list, expected_output, time_limit, generation)
+                # Przeprowadzamy ewolucję w każdej generacji
+                self.evolve(input_list, expected_output, time_limit)
 
-                # Filter out -inf fitness values before calculating the average fitness
-                valid_fitness_scores = [score for score in self.fitness_scores if score != float('-inf')]
+                # Zbieramy wyniki fitness dla wszystkich programów w populacji
+                valid_fitness_scores = [p.fitness for p in self.population if p.fitness != float('-inf')]
 
-                # If there are no valid fitness scores, set avg_fitness to 0
+                # Jeśli są ważne wyniki, obliczamy średni fitness
                 if valid_fitness_scores:
                     avg_fitness = sum(valid_fitness_scores) / len(valid_fitness_scores)
                 else:
-                    avg_fitness = 0  # Or some other value to indicate no valid scores
+                    avg_fitness = 0  # Jeśli nie ma ważnych wyników, ustawiamy na 0
 
-                # Get best fitness (still considering -inf)
-                best_fitness = max(self.fitness_scores)
+                # Zbieramy najlepszy fitness w tej generacji
+                best_fitness = max(valid_fitness_scores) if valid_fitness_scores else float('-inf')
 
-                # Get the best individual and their program for this generation
-                best_individual = self.population[self.fitness_scores.index(best_fitness)]
+                # Wybieramy najlepszego osobnika z populacji (na podstawie najlepszego fitness)
+                best_individual = max(self.population, key=lambda p: p.fitness)
                 best_program = best_individual.get_program()
 
-                # Update overall best program if needed
+                # Jeśli najlepszy fitness w tej generacji jest lepszy od dotychczasowego najlepszego, aktualizujemy
                 if best_fitness > overall_best_fitness:
                     overall_best_fitness = best_fitness
                     overall_best_program = best_program
+                    self.stagnation_count = 0  # Reset stagnation counter because we improved
+                else:
+                    self.stagnation_count += 1  # Increment stagnation counter if no improvement
 
-                # Write to file the generation results
-                result_file.write(f"{generation}, {best_fitness:.2f}, {avg_fitness:.2f}\n")
+                # Zapisujemy wyniki dla tej generacji do pliku
+                result_file.write(f"{generation}, {overall_best_fitness:.2f}, {avg_fitness:.2f}\n")
 
-                # Print generation results
+                # Drukujemy wyniki na ekran
                 print(
-                    f"Generation {generation}: Best Fitness = {best_fitness:.2f}, Average Fitness = {avg_fitness:.2f}")
+                    f"Generation {generation + 1}: Best Fitness = {overall_best_fitness:.2f}, Average Fitness = {avg_fitness:.2f}")
 
-            # Blank line after all generations
+                # Sprawdzamy, czy osiągnęliśmy best_fitness = 0, jeśli tak, kończymy program
+                if overall_best_fitness == 0:
+                    print(f"Best Fitness reached 0 at generation {generation + 1}. Stopping the program.")
+                    break
+
+                # Jeśli stagnacja trwa przez zbyt wiele generacji, zmieniamy współczynniki
+                if self.stagnation_count >= self.stagnation_threshold:
+                    print(f"Stagnation detected! Increasing mutation and reducing crossover.")
+                    self.crossover_rate = 0.0
+                    self.mutation_rate = 1.0
+                else:
+                    # Jeśli stagnacja została przerwana, przywracamy oryginalne wartości
+                    if self.crossover_rate != self.original_crossover_rate or self.mutation_rate != self.original_mutation_rate:
+                        print(f"Improvement detected! Restoring original crossover and mutation rates.")
+                        self.crossover_rate = self.original_crossover_rate
+                        self.mutation_rate = self.original_mutation_rate
+
+            # Po zakończeniu wszystkich generacji zapisujemy najlepszego programu
             result_file.write("\n")
-
-            # Write the final best program
-            result_file.write(f"Final Best Program: {overall_best_program}\n")
-
-
-
-
-
+            result_file.write(f"Final Best Program:\n {overall_best_program}\n")
