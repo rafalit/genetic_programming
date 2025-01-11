@@ -89,6 +89,7 @@ class SpeckAST:
     @classmethod
     def crossover(cls, program1, program2):
         program1 = deepcopy(program1)
+        program1.fitness = float('-inf')
         node_to_be_replaced = random.choice(program1.program_nodes())
 
         nodes_for_replacing = program2.program_nodes()
@@ -110,6 +111,7 @@ class SpeckAST:
 
     def mutation(self):
         mutated_program = deepcopy(self)
+        mutated_program.fitness = float('-inf')
         node_to_be_replaced = random.choice(mutated_program.program_nodes())
         depth_of_replaced_node = node_to_be_replaced[-1].depth
 
