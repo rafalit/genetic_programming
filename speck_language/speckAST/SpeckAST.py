@@ -90,7 +90,6 @@ class SpeckAST:
     def crossover(cls, program1, program2):
         program1 = deepcopy(program1)
         node_to_be_replaced = random.choice(program1.program_nodes())
-        depth_of_replaced_node = node_to_be_replaced[-1].depth  # Uzyskujemy głębokość z istniejącego węzła
 
         nodes_for_replacing = program2.program_nodes()
         if isinstance(node_to_be_replaced[-1], Expression):
@@ -107,16 +106,12 @@ class SpeckAST:
 
         current_node.children[node_to_be_replaced[-2]] = deepcopy(random.choice(nodes_for_replacing)[-1])
 
-        if hasattr(current_node.children[node_to_be_replaced[-2]], 'depth') and current_node.children[
-            node_to_be_replaced[-2]].depth > program1.max_depth:
-            current_node.children[node_to_be_replaced[-2]].depth = program1.max_depth
-
         return program1
 
     def mutation(self):
         mutated_program = deepcopy(self)
         node_to_be_replaced = random.choice(mutated_program.program_nodes())
-        depth_of_replaced_node = node_to_be_replaced[-1].depth  # Uzyskujemy głębokość z istniejącego węzła
+        depth_of_replaced_node = node_to_be_replaced[-1].depth
 
         new_node = None
         if isinstance(node_to_be_replaced[-1], Expression):

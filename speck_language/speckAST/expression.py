@@ -41,7 +41,7 @@ class Expression(ParseTreeNode):
                     return left * right
                 case '/':
                     if right == 0:
-                        return float('inf')
+                        return left
                     return left / right
                 case '>':
                     return 1 if left > right else -1
