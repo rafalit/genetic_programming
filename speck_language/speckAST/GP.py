@@ -7,7 +7,8 @@ import math
 class GP:
     def __init__(self, population_size, max_program_size, initial_program_size, max_variables, max_depth,
                  tournament_size, crossover_rate, stagnation_crossover_rate, fitness_function, stagnation_threshold,
-                 survival_rate, number_const_min=0, number_const_max=10, number_const_size=11, task_name=None, **kwargs):
+                 survival_rate, use_unused_branches_pruning, number_const_min=0, number_const_max=10,
+                 number_const_size=11, task_name=None, **kwargs):
         self.population_size = population_size
         self.max_program_size = max_program_size
         self.initial_program_size = initial_program_size
@@ -22,6 +23,7 @@ class GP:
         self.number_const_size = number_const_size
         self.task_name = task_name
         self.survival_rate = survival_rate
+        self.use_unused_branches_pruning = use_unused_branches_pruning
 
         if not os.path.exists('result'):
             os.makedirs('result')
@@ -58,12 +60,25 @@ class GP:
             program.fitness = score
 
     def tournament_selection(self):
-        self.population.sort(key=lambda p: p.fitness, reverse=True)
         half_population = math.ceil(len(self.population) * self.survival_rate)
         self.population = self.population[:half_population]
 
+    def prune_unused_branches(self):
+        new_population = []
+        for program in self.population:
+            program.prune_unused_branches()
+
+            if len(program.children) == 0:
+                continue
+
+            new_population.append(program)
+            program.nullify_num_of_executions()
+        self.population = new_population
+
     def evolve(self):
         self.tournament_selection()
+        if self.use_unused_branches_pruning:
+            self.prune_unused_branches()
         new_population = []
 
         while len(self.population) + len(new_population) < self.population_size:
@@ -82,15 +97,14 @@ class GP:
 
     def run(self, generations, inputs, outputs, time_limit):
         with open(self.result_file, 'w') as result_file:
-            result_file.write("Generation, Best Fitness, Average Fitness\n")
+            result_file.write("Generation, Best Fitness, Average Fitness, Crossover Rate, Mutation Rate, Stagnation Count\n")
 
             overall_best_fitness = float('-inf')
             overall_best_program = None
 
             for generation in range(generations):
                 self.evaluate_population(inputs, outputs, time_limit)
-                if generation == 0:
-                    self.population.sort(key=lambda p: p.fitness, reverse=True)
+                self.population.sort(key=lambda p: p.fitness, reverse=True)
 
                 fitness_score_sum = 0
                 for o in self.population:
@@ -108,20 +122,27 @@ class GP:
                 else:
                     self.stagnation_count += 1
 
-                result_file.write(f"{generation}, {overall_best_fitness:.2f}, {avg_fitness:.2f}\n")
-
-                print(
-                    f"Generation {generation + 1}: Best Fitness = {overall_best_fitness:.2f}, Average Fitness = {avg_fitness:.2f}")
-
-                if overall_best_fitness == 0:
-                    print(f"Best Fitness reached 0 at generation {generation + 1}. Stopping the program.")
-                    break
 
                 if self.stagnation_count >= self.stagnation_threshold:
                     self.crossover_rate = self.stagnation_crossover_rate
                 else:
                     if self.crossover_rate != self.original_crossover_rate:
                         self.crossover_rate = self.original_crossover_rate
+
+                result_file.write(f"{generation}, {overall_best_fitness:.2f}, {avg_fitness:.2f}, {self.crossover_rate:.2f}, {1 - self.crossover_rate:.2f}, {self.stagnation_count}\n")
+
+                print(
+                    f"Generation {generation + 1}: Best Fitness = {overall_best_fitness:.2f}, Average Fitness = {avg_fitness:.2f}, Crossover Rate = {self.crossover_rate:.2f}, Mutation Rate = {1 - self.crossover_rate:.2f}, Stagnation Count = {self.stagnation_count}")
+
+                if overall_best_fitness == 0:
+                    print(f"Best Fitness reached 0 at generation {generation + 1}. Stopping the program.")
+                    print(f'Best Program:\n {best_individual}')
+                    best_individual.prune_unused_branches()
+                    print(f'Best Program after pruning:\n {best_individual}')
+                    print('Best Programs outputs:')
+                    for input, output in zip(inputs, outputs):
+                        print(f'Input: {input}, output: {best_individual.run(input, len(output), time_limit)}')
+                    break
 
                 if generation != generations - 1:
                     self.evolve()

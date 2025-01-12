@@ -10,6 +10,8 @@ class AssigmentStatement(ParseTreeNode):
     def run(self, root):
         if self.time_limit_exceeded():
             return
+        self.num_of_executions += 1
+
         index = int(self.children[0][1:])
         value = self.children[1].run(root)
         if self.children[0][0] == 'x':
