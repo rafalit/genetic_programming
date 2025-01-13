@@ -26,7 +26,7 @@ def run_task(task_names, **config):
     gp = GP(**default_config)
     test_cases = extract_inputs(task_names)
 
-    gp.run(150, test_cases, time_limit=0.005)
+    gp.run(150, test_cases, time_limit=0.01)
 
 
 def extract_inputs(task_names):

@@ -145,12 +145,17 @@ class GP:
                     f"Generation {generation + 1}: Best Fitness = {overall_best_fitness:.2f}, Average Fitness = {avg_fitness:.2f}, Crossover Rate = {self.crossover_rate:.2f}, Mutation Rate = {1 - self.crossover_rate:.2f}, Stagnation Count = {self.stagnation_count}")
 
                 if overall_best_fitness == 0 or generation == generations - 1:
+                    best_program_string = str(best_individual)
+                    best_individual.prune_unused_branches()
+                    best_program_pruned_string = str(best_individual)
                     with open(self.result_file, 'a') as result_file:
                         result_file.write("\n")
-                        result_file.write(f"Final Best Program:\n {overall_best_program}\n")
+                        result_file.write(f"Final Best Program:\n {best_program_string}\n")
+                        result_file.write(f"Final Best Program after pruning:\n {best_program_pruned_string}\n")
 
                     print(f"Best Fitness reached 0 at generation {generation + 1}.")
-                    print(f'Best Program:\n {best_individual}')
+                    print(f'Best Program:\n {best_program_string}')
+                    print(f'Best Program after pruning:\n {best_program_pruned_string}')
                     print('Best Programs outputs:')
                     for input, output in zip(inputs, outputs):
                         print(f'Input: {input}, output: {best_individual.run(input, len(output), time_limit)}')
