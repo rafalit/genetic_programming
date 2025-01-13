@@ -55,6 +55,7 @@ class SpeckAST:
         return result
 
     def run(self, input_list, output_size, time_limit):
+        self.variables = np.zeros(self.max_variables)
         self.input_list = np.array(input_list)
         self.current_input_index = 0
         self.output_list = []
