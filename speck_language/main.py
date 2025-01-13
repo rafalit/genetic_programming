@@ -41,7 +41,23 @@ def fitness_function_task3(input, output, expected_output):
     else:
         return -1000
 
+def fitness_function_task2(input, output, expected_output):
+    score = 0
 
-run_task(['task1'],
-         **{
+    score += ((len(output) - len(expected_output)) ** 2) * -10
+
+    for i, o, e in zip(input, output, expected_output):
+        if o == e:
+            continue
+        if i > 0:
+            if o != i:
+                score -= 20
+            else:
+                score -= 40
+
+    return score
+
+
+run_task(['task2'],
+         **{ 'fitness_functions': [fitness_function_task2],
             'use_unused_branches_pruning': True})
