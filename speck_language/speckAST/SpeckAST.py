@@ -7,6 +7,8 @@ from .assigment_statement import AssigmentStatement
 from .condition_statement import ConditionStatement
 from .loop_statement import LoopStatement
 from .expression import Expression
+from .parse_tree_node import ParseTreeNode
+from .statement_with_body import StatementWithBody
 from copy import deepcopy
 
 
@@ -53,6 +55,7 @@ class SpeckAST:
         return result
 
     def run(self, input_list, output_size, time_limit):
+        self.variables = np.zeros(self.max_variables)
         self.input_list = np.array(input_list)
         self.current_input_index = 0
         self.output_list = []
@@ -85,6 +88,28 @@ class SpeckAST:
                 self.children.append(child)
             else:
                 break
+
+    def nullify_num_of_executions(self):
+        for child in self.children:
+            if isinstance(child, ParseTreeNode):
+                child.nullify_num_of_executions()
+
+    def prune_unused_branches(self):
+        new_children = []
+
+        for child in self.children:
+            if not isinstance(child, ParseTreeNode):
+                continue
+
+            if child.num_of_executions > 0:
+                if isinstance(child, StatementWithBody):
+                    child.prune_unused_branches()
+                new_children.append(child)
+
+        self.children = new_children
+
+
+
 
     @classmethod
     def crossover(cls, program1, program2):

@@ -10,5 +10,6 @@ class LoopStatement(StatementWithBody):
             return
         condition = self.children[0].run(root)
         while condition > 0 and not self.time_limit_exceeded():
+            self.num_of_executions += 1
             for child in self.children[1:]:
                 child.run(root)

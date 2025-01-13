@@ -9,6 +9,7 @@ class InputStatement(ParseTreeNode):
     def run(self, root):
         if self.time_limit_exceeded():
             return
+        self.num_of_executions += 1
         variable_name = self.children[0]
         variable_index = int(variable_name[1:])
         if variable_name[0] == 'x':

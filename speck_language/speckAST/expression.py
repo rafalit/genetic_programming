@@ -20,6 +20,8 @@ class Expression(ParseTreeNode):
         return result
 
     def run(self, root):
+        self.num_of_executions += 1
+
         if len(self.children) == 1:
             if isinstance(self.children[0], str):
                 index = int(self.children[0][1:])

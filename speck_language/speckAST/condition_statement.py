@@ -10,5 +10,6 @@ class ConditionStatement(StatementWithBody):
             return
         condition = self.children[0].run(root)
         if condition > 0:
+            self.num_of_executions += 1
             for child in self.children[1:]:
                 child.run(root)

@@ -11,6 +11,20 @@ class StatementWithBody(ParseTreeNode):
         return f'{" " * (self.depth * 4)}{statement_keyword}({self.children[0]})' + '{\n' + body + '\n' + (
                     " " * (self.depth * 4)) + '}'
 
+    def prune_unused_branches(self):
+        new_children = [self.children[0]]
+
+        for child in self.children[1:]:
+            if not isinstance(child, ParseTreeNode):
+                continue
+
+            if child.num_of_executions > 0:
+                if isinstance(child, StatementWithBody):
+                    child.prune_unused_branches()
+                new_children.append(child)
+
+        self.children = new_children
+
     @classmethod
     def generate(cls, root, depth):
         condition = Expression.generate(root, depth + 1)

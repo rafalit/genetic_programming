@@ -1,0 +1,16 @@
+Generation, Best Fitness, Average Fitness, Crossover Rate, Mutation Rate, Stagnation Count
+0, -400.00, -3771.36, 0.80, 0.20, 0
+1, 0.00, -1453.47, 0.80, 0.20, 0
+
+Final Best Program:
+ while(! x2){
+    in(x2);
+    out(x2);
+}
+
+Final Best Program after pruning:
+ while(! x2){
+    in(x2);
+    out(x2);
+}
+
