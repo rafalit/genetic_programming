@@ -15,8 +15,8 @@ def run_task(task_names, **config):
         'stagnation_threshold': 10,
         "fitness_functions": [fitness_function],
         "number_const_min": 0,
-        "number_const_max": 10,
-        "number_const_size": 11,
+        "number_const_max": 1000,
+        "number_const_size": 1001,
         "task_names": task_names,
         "survival_rate": 0.3,
         "use_unused_branches_pruning": False
